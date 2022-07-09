@@ -1,5 +1,4 @@
-#ifndef MyType_TraitsH
-#define MyType_TraitsH
+@pragma once
 
 #if defined BUILD_WITH_VCL || BUILD_WITH_FMX
 #include <System.Classes.hpp>
@@ -13,6 +12,7 @@
 
 template<typename ty>
 struct dependent_false : std::false_type {};
+
 
 template<bool flag = false>
 void static_assert_no_match() {
@@ -120,25 +120,11 @@ struct is_number_param {
                                  std::is_same<long long, ty>::value || std::is_same<long long&, ty>::value || std::is_same<const long long&, ty>::value;
    };
 
-
 template <typename ty>
 struct is_optional : std::false_type {};
 
 template <typename ty>
 struct is_optional<std::optional<ty>> : std::true_type {};
 
-
-template <typename T, typename = void>
-struct is_container : std::false_type {};
-
-template <typename T>
-struct is_container<T
-   , std::void_t<typename T::iterator,
-                 typename T::const_iterator,
-                 decltype(std::declval<T>().begin()),
-                 decltype(std::declval<T>().end()),
-                 decltype(std::declval<T>().size()),
-                 decltype(std::declval<T>().begin()),
-                 decltype(std::declval<T>().cend()) >> : std::true_type {};
-
 #endif
+
