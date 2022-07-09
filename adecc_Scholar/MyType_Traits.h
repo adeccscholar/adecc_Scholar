@@ -1,4 +1,4 @@
-@pragma once
+#pragma once
 
 #if defined BUILD_WITH_VCL || BUILD_WITH_FMX
 #include <System.Classes.hpp>
