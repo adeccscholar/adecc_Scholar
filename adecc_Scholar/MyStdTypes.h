@@ -1,10 +1,55 @@
 ﻿#ifndef MyStdTypesH
 #define MyStdTypesH
 
+#include <iostream>
 #include <string>
+#include <sstream>
 #include <map>
 #include <vector>
 #include <tuple>
+
+
+struct Narrow {
+   using stream_type  = std::ostream;
+   using string_type  = std::string;
+   using streambuf    = std::streambuf;
+   using stringstream = std::ostringstream;
+
+   static inline string_type                  strEmpty = "";
+   static inline const stringstream::int_type cNL  = '\n';
+   static inline const stringstream::int_type cTab = '\t';
+   };
+
+struct Latin {
+   using stream_type = std::ostream;
+   using string_type = std::string;
+   using streambuf = std::streambuf;
+   using stringstream = std::ostringstream;
+
+   static inline string_type                  strEmpty = "";
+   static inline const stringstream::int_type cNL = '\n';
+   static inline const stringstream::int_type cTab = '\t';
+};
+
+
+struct Wide {
+   using stream_type  = std::wostream;
+   using string_type  = std::wstring;
+   using streambuf    = std::wstreambuf;
+   using stringstream = std::wostringstream;
+
+   static inline string_type                  strEmpty = L"";
+   static inline const stringstream::int_type cNL  = L'\n';
+   static inline const stringstream::int_type cTab = L'\t';
+   };
+
+template <typename char_type>
+struct TMyDelimiter {
+  typename char_type::string_type leading;
+  typename char_type::string_type center;
+  typename char_type::string_type trailing;
+};
+
 
 /// Return values for modal dialogs and windows
 enum class EMyRetResults { 

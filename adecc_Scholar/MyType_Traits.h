@@ -8,6 +8,8 @@
 
 #include <type_traits>
 #include <string>
+#include <set>
+#include <vector>
 #include <optional>
 
 template<typename ty>
@@ -23,6 +25,11 @@ template<bool flag = false>
 void static_assert_no_supported() {
    static_assert(flag, "this type isn't supported");
    }
+
+
+template <typename ty, template <class> typename... Args>
+constexpr bool correspond_to_any = std::disjunction<Args<ty>...>::value;
+
 
 template <typename ty>
 struct is_wchar_param {
@@ -74,6 +81,9 @@ struct is_delphi_string {
 								 is_delphi_wide_string<ty>::value;
    };
 
+template<typename ty>
+struct is_qt_string : std::false_type {};
+
 #elif defined BUILD_WITH_QT
 
 template <typename ty>
@@ -82,6 +92,15 @@ struct is_qt_string {
 								 std::is_same<QString&, ty>::value ||
 								 std::is_same<const QString&, ty>::value;
    };
+
+template <typename ty>
+struct is_delphi_narrow_string : std::false_type {} ;
+
+template <typename ty>
+struct is_delphi_wide_string : std::false_type {};
+
+template <typename ty>
+struct is_delphi_string : std::false_type {};
 
 #endif
 
@@ -126,5 +145,45 @@ struct is_optional : std::false_type {};
 template <typename ty>
 struct is_optional<std::optional<ty>> : std::true_type {};
 
+
+template <typename T, typename = void>
+struct is_container : std::false_type {};
+
+
+template <typename T>
+struct is_container<T
+   , std::void_t<typename T::iterator,
+                 typename T::const_iterator,
+                 decltype(std::declval<T>().begin()),
+                 decltype(std::declval<T>().end()),
+                 decltype(std::declval<T>().size()),
+                 decltype(std::declval<T>().begin()),
+                 decltype(std::declval<T>().cend()) >> : std::true_type {};
+
+
+template <typename ty, typename _ = void>
+struct is_vector {
+  static constexpr bool value = false;
+};
+
+template <typename ty>
+struct is_vector<ty, typename std::enable_if<std::is_same<ty, std::vector<typename ty::value_type,
+                                             typename ty::allocator_type>>::value>::type> {
+  static constexpr bool value = true;
+};
+
+
+
+
+template <typename ty, typename _ = void>
+struct is_set {
+  static constexpr bool value = false;
+};
+
+template <typename ty>
+struct is_set<ty, typename std::enable_if<std::is_same<ty,std::set<typename ty::key_type,
+                                          typename ty::key_compare, typename ty::allocator_type>>::value>::type> {
+  static constexpr bool value = true;
+};
 
 

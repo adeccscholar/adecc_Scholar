@@ -38,39 +38,55 @@
 // ------------------------------------------------------------------------
 // Vorbereitung, Basisklassen sind C++, keine Frameworkabhängigkeit
 
-struct Narrow {
-   using stream_type  = std::ostream;
-   using string_type  = std::string;
-   using streambuf    = std::streambuf;
-   using stringstream = std::ostringstream;
+template <typename fw, typename ty>
+struct my_Ostream_Iter {
+   using iterator_category = std::output_iterator_tag;
+   using value_type = ty;
+   using difference_type = void; // std::ptrdiff_t;
+   using reference = void;
+   using pointer = void;
 
-   static inline string_type                  strEmpty = "";
-   static inline const stringstream::int_type cNL  = '\n';
-   static inline const stringstream::int_type cTab = '\t';
-   };
+   typename fw::stream_type& out;
+   TMyDelimiter<fw> const& del;
+   size_t pos;
+   bool root;
 
-struct Latin {
-   using stream_type = std::ostream;
-   using string_type = std::string;
-   using streambuf = std::streambuf;
-   using stringstream = std::ostringstream;
+   my_Ostream_Iter(std::ostream& s, MyDelimiter<fw> const& d) : out(s), del(d), pos(0u), root(true) {
+      out << del.leading;
+      }
+   my_Ostream_Iter(my_Ostream_Iter<fw, ty> const& ref) : out(ref.out), del(ref.del), pos(ref.pos), root(false) {} 
+   ~my_Ostream_Iter() { if(root) out << del.trailing;  }
 
-   static inline string_type                  strEmpty = "";
-   static inline const stringstream::int_type cNL = '\n';
-   static inline const stringstream::int_type cTab = '\t';
+   my_Ostream_Iter& operator=(my_Ostream_Iter<fw, ty> const& p) {
+     bool r = root;
+     new (this) my_Ostream_Iter<fw, ty>(p);
+     root = r;
+     return *this;
+   }
+
+   my_Ostream_Iter& operator=(ty const& e) {
+      out << (pos > 0 ? del.center : fw::strEmpty) << e;
+      return *this;
+   }
+
+   my_Ostream_Iter& operator*() { return *this;  }
+   my_Ostream_Iter& operator++() {
+     ++pos;
+     return *this;
+    }
+
+   my_Ostream_Iter& operator++(int) {
+      pos++;
+      return *this;
+    }
+
 };
 
+template <typename ty>
+using my_ostream_iterator = my_Ostream_Iter<Narrow, ty>;
 
-struct Wide {
-   using stream_type  = std::wostream;
-   using string_type  = std::wstring;
-   using streambuf    = std::wstreambuf;
-   using stringstream = std::wostringstream;
-
-   static inline string_type                  strEmpty = L"";
-   static inline const stringstream::int_type cNL  = L'\n';
-   static inline const stringstream::int_type cTab = L'\t';
-   };
+template <typename ty>
+using my_wostream_iterator = my_Ostream_Iter<Wide, ty>;
 
 
 template <typename ty>
