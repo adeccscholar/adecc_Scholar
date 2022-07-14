@@ -202,7 +202,7 @@ class TMyForm {
 
       //------------------------------------------------------------------------
       template<typename ty_base, EMyFrameworkType ft>
-      void GetAsStream(TStreamWrapper<ty_base>& wrapper, std::string const& strName, std::vector<tplList> const& caps) {
+      void GetAsStream(TStreamWrapper<ty_base>& wrapper, std::string const& strName, std::vector<tplList<ty_base>> const& caps) {
          if constexpr (ft == EMyFrameworkType::listview)
             wrapper.Activate(Find<fw_Table>(strName), caps);
          else

@@ -50,6 +50,21 @@ struct TMyDelimiter {
   typename char_type::string_type trailing;
 };
 
+/// Enumeration with values for the alignment of a field independent of the framework
+enum class EMyAlignmentType : int {
+   left = 1,
+   right = 2,
+   center = 3,
+   unknown = 100
+};
+
+
+template <typename char_type>
+using tplList = std::tuple<typename char_type::string_type, int, EMyAlignmentType>;
+
+template <typename char_type>
+using vecList = std::vector<tplList<char_type>>;
+
 
 /// Return values for modal dialogs and windows
 enum class EMyRetResults { 
@@ -75,18 +90,8 @@ enum class EMyFrameworkType : int {
 							listview = 9   ///< tableview / list as display field for values in table form, value is 9
                      };
 
-/// Enumeration with values for the alignment of a field independent of the framework
-enum class EMyAlignmentType : int { 
-	                  left = 1, 
-							right = 2, 
-							center = 3, 
-							unknown = 100 
-                     };
-
-using tplList = std::tuple<std::string, int, EMyAlignmentType>;
-using vecList = std::vector<tplList>;
-
-using mapLists = std::map<std::string, vecList>;
+template <typename char_type>
+using mapLists = std::map<std::string, vecList<char_type>>;
 
 // Repository for all comboboxes in a form
 using tplRepVal     = std::tuple<std::string, int>;

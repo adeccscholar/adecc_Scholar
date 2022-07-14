@@ -118,9 +118,9 @@ class ListStreamBufBase : public StreamBufBase<ty> {
    protected:
       using base_type = StreamBufBase<ty>;
       using int_type  = typename ty::streambuf::int_type;
-      std::vector<tplList> captions;
+      std::vector<tplList<ty>> captions;
    public:
-      ListStreamBufBase(std::vector<tplList> const& para) : StreamBufBase<ty>() { captions = para;  };
+      ListStreamBufBase(std::vector<tplList<ty>> const& para) : StreamBufBase<ty>() { captions = para;  };
       virtual ~ListStreamBufBase(void) { };
 
       virtual void Write(void)   = 0;
@@ -401,7 +401,7 @@ class ListViewStreamBuf : public ListStreamBufBase<ty> {
       TListItem* item;
       bool boNewItem;
    public:
-      ListViewStreamBuf(TListView* para, std::vector<tplList> const& caps, bool boClean = true)  : ListStreamBufBase<ty>(caps) {
+      ListViewStreamBuf(TListView* para, std::vector<tplList<ty>> const& caps, bool boClean = true)  : ListStreamBufBase<ty>(caps) {
          value = para;
          item = nullptr;
          value->ViewStyle = vsReport;
@@ -453,7 +453,7 @@ class ListViewStreamBuf : public ListStreamBufBase<ty> {
       int          iColumn = 0;
       int          iRow    = 0;
    public:
-      ListViewStreamBuf(TStringGrid *para, std::vector<tplList> const& caps, bool boClean = true)  : ListStreamBufBase<ty>(caps) {
+      ListViewStreamBuf(TStringGrid *para, std::vector<tplList<ty>> const& caps, bool boClean = true)  : ListStreamBufBase<ty>(caps) {
          sg      = para;
          iColumn = 0;
          iRow    = 0;
@@ -530,7 +530,7 @@ private:
 
 
 public:
-   ListViewStreamBuf(QTableWidget* para, std::vector<tplList> const& caps, bool boClean = true) : ListStreamBufBase<ty>(caps) {
+   ListViewStreamBuf(QTableWidget* para, std::vector<tplList<ty>> const& caps, bool boClean = true) : ListStreamBufBase<ty>(caps) {
       tw = para;
       iColumn = 0;
       iRow = 0;
@@ -687,17 +687,17 @@ class TStreamWrapper {
     #endif
 
  #if defined BUILD_WITH_VCL
-     void Activate(TListView* elem, std::vector<tplList> const& caps) {
+     void Activate(TListView* elem, std::vector<tplList<ty_base>> const& caps) {
         Reset();
         old = str.rdbuf(new ListViewStreamBuf<ty_base>(elem, caps));
         }
 #elif defined BUILD_WITH_FMX
-     void Activate(TStringGrid* elem, std::vector<tplList> const& caps) {
+     void Activate(TStringGrid* elem, std::vector<tplList<ty_base>> const& caps) {
         Reset();
         old = str.rdbuf(new ListViewStreamBuf<ty_base>(elem, caps));
         }
 #elif defined BUILD_WITH_QT
-     void Activate(QTableWidget* elem, std::vector<tplList> const& caps) {
+     void Activate(QTableWidget* elem, std::vector<tplList<ty_base>> const& caps) {
         Reset();
         old = str.rdbuf(new ListViewStreamBuf<ty_base>(elem, caps));
      }
