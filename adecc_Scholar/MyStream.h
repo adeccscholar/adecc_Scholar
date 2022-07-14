@@ -1,5 +1,5 @@
-﻿#ifndef xMyStreamH
-#define xMyStreamH
+﻿#ifndef MyStreamH
+#define MyStreamH
 
 #include "MyStdTypes.h"
 
@@ -38,7 +38,7 @@
 // ------------------------------------------------------------------------
 // Vorbereitung, Basisklassen sind C++, keine Frameworkabhängigkeit
 
-template <typename fw, typename ty>
+template <typename char_type, typename ty>
 struct my_Ostream_Iter {
    using iterator_category = std::output_iterator_tag;
    using value_type = ty;
@@ -46,26 +46,26 @@ struct my_Ostream_Iter {
    using reference = void;
    using pointer = void;
 
-   typename fw::stream_type& out;
-   TMyDelimiter<fw> const& del;
+   typename char_type::stream_type& out;
+   TMyDelimiter<char_type> const& del;
    size_t pos;
    bool root;
 
-   my_Ostream_Iter(std::ostream& s, MyDelimiter<fw> const& d) : out(s), del(d), pos(0u), root(true) {
+   my_Ostream_Iter(std::ostream& s, TMyDelimiter<char_type> const& d) : out(s), del(d), pos(0u), root(true) {
       out << del.leading;
       }
-   my_Ostream_Iter(my_Ostream_Iter<fw, ty> const& ref) : out(ref.out), del(ref.del), pos(ref.pos), root(false) {} 
+   my_Ostream_Iter(my_Ostream_Iter<char_type, ty> const& ref) : out(ref.out), del(ref.del), pos(ref.pos), root(false) {} 
    ~my_Ostream_Iter() { if(root) out << del.trailing;  }
 
-   my_Ostream_Iter& operator=(my_Ostream_Iter<fw, ty> const& p) {
+   my_Ostream_Iter& operator=(my_Ostream_Iter<char_type, ty> const& p) {
      bool r = root;
-     new (this) my_Ostream_Iter<fw, ty>(p);
+     new (this) my_Ostream_Iter<char_type, ty>(p);
      root = r;
      return *this;
    }
 
    my_Ostream_Iter& operator=(ty const& e) {
-      out << (pos > 0 ? del.center : fw::strEmpty) << e;
+      out << (pos > 0 ? del.center : char_type::strEmpty) << e;
       return *this;
    }
 
