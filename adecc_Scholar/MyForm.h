@@ -1131,12 +1131,14 @@ struct my_formlist_iterator {
    using iterator_category = std::input_iterator_tag;
    using value_type = ty;
    using difference_type = std::ptrdiff_t;
-   using reference = const value_type&;
+   using reference = value_type;
    using pointer = const value_type*;
 
    my_formlist_iterator() = default;
    my_formlist_iterator(TMyForm* frm, std::string const& fld) : 
-                    form(frm), strField(fld) { ++* this; }
+      form(frm), strField(fld) {
+      ++* this;
+   }
 
 
    my_formlist_iterator& operator = (std::pair<TMyForm*, std::string> para) {
@@ -1153,13 +1155,13 @@ struct my_formlist_iterator {
       return *this;
       }
 
-   reference operator*() const { return form->Value_in_list<ft,ty>(strField, start_pos); }
+   reference operator*() const { if (!form) throw std::runtime_error("xxx"); return form->Value_in_list<ft, ty>(strField, start_pos - 1); }
    //pointer operator->() const { return &theLine; }
 
  
    my_formlist_iterator& operator++() {
       if (form) {
-         if(start_pos < form->Count_in_list<ft, ty>(strField)) start_pos++;
+         if(start_pos < form->Count_in_list<ft>(strField)) start_pos++;
          else {
             form  = nullptr;
 			   strField = "";
@@ -1175,6 +1177,7 @@ struct my_formlist_iterator {
    }
    
    friend bool operator==(const my_formlist_iterator& x, const my_formlist_iterator& y) {
+     if (x.form == nullptr && y.form == nullptr) return true;
 	  if(x.form == nullptr || y.form == nullptr) return false;
 	  if(x.form == y.form) {
          return x.strField == y.strField;
