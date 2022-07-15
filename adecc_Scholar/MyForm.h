@@ -34,6 +34,7 @@ class TMyWait {
          }
    };
 
+
 #elif defined BUILD_WITH_FMX
 class TMyWait {
    private:
@@ -787,6 +788,51 @@ class TMyForm {
          }
 
 
+      //-----
+      template <EMyFrameworkType ft, typename ty>
+      ty Value_in_list(std::string const& strField, size_t index) {
+         #if defined BUILD_WITH_VCL || defined BUILD_WITH_FMX
+            auto GetFunc = [](auto* field, size_t index) { return field->Items->Strings[index]; };
+         #elif defined BUILD_WITH_QT
+            auto GetFunc = [](auto* field, size_t index) { return field->item(index)->text(); };
+         #else
+            #error Fehlende Implementierung für Count_in_list für dieses Framework
+         #endif
+         // GetText<ty>(
+         ty ret;
+         if constexpr (ft == EMyFrameworkType::combobox) {
+            ret = GetText<ty>(GetFunc(Find<fw_Combobox>(strField), index));
+            }
+         if constexpr (ft == EMyFrameworkType::listbox) {
+            ret = GetText<ty>(GetFunc(Find<fw_Listbox>(strField), index));
+            }
+         else static_assert_no_match();
+         return ret;
+         }
+
+      template <EMyFrameworkType ft>
+      size_t Count_in_list(std::string const& strField) {
+         #if defined BUILD_WITH_VCL || defined BUILD_WITH_FMX
+            auto CountFunc = [](auto* field) { return field->Items->Count; };
+         #elif defined BUILD_WITH_QT
+            auto CountFunc = [](auto* field) { return field->count(); };
+         #else
+            #error Fehlende Implementierung für Count_in_list für dieses Framework
+         #endif
+
+         size_t ret;
+
+         if constexpr (ft == EMyFrameworkType::combobox) {
+            ret = CountFunc(Find<fw_Combobox>(strField));
+            }
+         if constexpr (ft == EMyFrameworkType::listbox) {
+            ret = CountFunc(Find<fw_Listbox>(strField));
+            }
+         else static_assert_no_match();
+         return ret;
+         }
+
+
       //------------------------------------------------------------------------
       EMyRetResults ShowModal(void) {
          #if defined BUILD_WITH_VCL || defined BUILD_WITH_FMX
@@ -993,22 +1039,6 @@ class TMyForm {
            auto get_index = [&field]() { return field->currentIndex(); };
            auto set_index = [&field](int val) { return field->setCurrentIndex(val); };
            auto set_to = [&field](fw_String const& strSeek) { 
-              /*
-              qDebug() << "|" << strSeek << "|" ;
-              qDebug() << "|" << field->currentText() << "|";
-              //field->setCurrentText(strSeek);
-              for (int i = 0; i < field->count(); ++i) {
-                 auto txt = field->itemText(i);
-                 //txt.remove(QChar::Null);
-                // auto index = txt.indexOf(QString("\000"));
-                // if (index != -1) txt.truncate(index);
-                 qDebug() << "|" << txt << "|";
-                 }
-              int index = field->findData(strSeek);
-              qDebug() << "|" << index << "|";
-              if(index != -1) field->setCurrentIndex(index);
-              qDebug() << "|" << field->currentText() << "|";
-              */
               field->setCurrentText(strSeek);
               };
          #else
@@ -1093,6 +1123,90 @@ class TMyForm {
       }
 
    };
+
+
+
+template <EMyFrameworkType ft, typename ty>
+struct my_formlist_iterator {
+   using iterator_category = std::input_iterator_tag;
+   using value_type = ty;
+   using difference_type = std::ptrdiff_t;
+   using reference = const value_type&;
+   using pointer = const value_type*;
+
+   my_formlist_iterator() = default;
+   my_formlist_iterator(TMyForm* frm, std::string const& fld) : 
+                    form(frm), strField(fld) { ++* this; }
+
+
+   my_formlist_iterator& operator = (std::pair<TMyForm*, std::string> para) {
+      form     = para.first;
+	  strField = para.second;
+      start_pos = 0;
+      return *this;
+      }
+ 
+   my_formlist_iterator& operator = (my_formlist_iterator const& ref) {
+      form      = ref.form;
+      strField  = ref.strField;
+      start_pos = ref.start_pos;
+      return *this;
+      }
+
+   reference operator*() const { return form->Value_in_list<ft,ty>(strField, start_pos); }
+   //pointer operator->() const { return &theLine; }
+
+ 
+   my_formlist_iterator& operator++() {
+      if (form) {
+         if(start_pos < form->Count_in_list<ft, ty>(strField)) start_pos++;
+         else {
+            form  = nullptr;
+			   strField = "";
+            }
+         }
+      return *this;
+      }
+
+   my_formlist_iterator operator++(int) {
+      auto copy(*this);
+      ++* this;
+      return copy;
+   }
+   
+   friend bool operator==(const my_formlist_iterator& x, const my_formlist_iterator& y) {
+	  if(x.form == nullptr || y.form == nullptr) return false;
+	  if(x.form == y.form) {
+         return x.strField == y.strField;
+	     }
+      else return false;
+      }
+
+   friend bool operator!=(const my_formlist_iterator& x, const my_formlist_iterator& y) {
+      return !(x == y);
+   }
+
+private:
+   TMyForm *form = nullptr;
+   std::string strField = "";
+   size_t start_pos = 0;
+
+};
+
+
+template <EMyFrameworkType ft, typename ty>
+struct my_formlist {
+   my_formlist(TMyForm* frm, std::string const& fld) : form(frm), strField(fld) { }
+   my_formlist(my_formlist<ft, ty> const& ref) : form(ref.form), strField(ref.strField) { }
+   my_formlist_iterator<ft, ty> begin() const { return my_formlist_iterator<ft, ty>(form, strField); }
+   my_formlist_iterator<ft, ty> end() const { return my_formlist_iterator<ft, ty>(); }
+
+private:
+   TMyForm *form;
+   std::string strField;
+};
+
+
 
 #endif
 
