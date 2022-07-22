@@ -8,6 +8,6 @@ Einige der Klassen sind nicht vollständig, sondern deuten nur die Lerninhalte a
 Um die Headeronly Bibliothek aus der Semesterpause zu nutzen, muss einer der folgenden Konstante definiert werden
 - BUILD_WITH_VCL, C++Builder oder RAD Studio 10.3 oder höher mit Windows- Anwendung (VCL)
 - BUILD_WITH_FMX, C++Builder oder RAD Studio 10.3 oder höher mit plattformunabhängiger Anwendung (FMX)
-- BUILD_WITH_QT - für Visual Studio mit Qt6und dem mit Qt Creator
+- BUILD_WITH_QT - für Visual Studio mit Qt6 und mit dem Qt Creator
 
 Fragen und Anregungen bitte über den Discord Server für adecc Scholar
