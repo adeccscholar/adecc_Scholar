@@ -546,7 +546,7 @@ public:
          QStringList m_TableHeader;
          tw->setColumnCount(ListStreamBufBase<ty>::captions.size());
          for (int i = 0; i < ListStreamBufBase<ty>::captions.size(); ++i) {
-            tplList const& caption = ListStreamBufBase<ty>::captions[i];
+            tplList<Narrow> const& caption = ListStreamBufBase<ty>::captions[i];
             QTableWidgetItem* item = new QTableWidgetItem(QString::fromStdString(std::get<0>(caption)));
             item->setTextAlignment(Align[std::get<2>(caption)]);
             tw->setHorizontalHeaderItem(i, item);
@@ -575,7 +575,7 @@ public:
             iRow = tw->rowCount();
          }
       }
-      tplList const& caption = ListStreamBufBase<ty>::captions[iColumn];
+      tplList<Narrow> const& caption = ListStreamBufBase<ty>::captions[iColumn];
       QTableWidgetItem* item;
       if constexpr (std::is_same<Wide, ty>::value)
          item = new QTableWidgetItem(QString::fromStdString(StreamBufBase<ty>::os.str()));
