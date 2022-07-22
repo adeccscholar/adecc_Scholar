@@ -790,7 +790,7 @@ class TMyForm {
 
       //-----
       template <EMyFrameworkType ft, typename ty>
-      ty Value_in_list(std::string const& strField, size_t index) {
+      ty Get_Value_in_list(std::string const& strField, size_t index) {
          #if defined BUILD_WITH_VCL || defined BUILD_WITH_FMX
             auto GetFunc = [](auto* field, size_t index) { return field->Items->Strings[index]; };
          #elif defined BUILD_WITH_QT
@@ -809,6 +809,35 @@ class TMyForm {
          else static_assert_no_match();
          return ret;
          }
+
+      template <EMyFrameworkType ft>
+      size_t Delete_Value_in_list(std::string const& strField, size_t index) {
+         #if defined BUILD_WITH_VCL || defined BUILD_WITH_FMX
+            auto get_index = [](auto* field) { return field->ItemIndex;  };
+            auto del_func  = [](auto* field, size_t index) { return field->Items->Delete(index); };
+            auto set_index = [](auto* field, size_t index) { field->ItemIndex = index;  };
+         #elif defined BUILD_WITH_QT
+            auto get_index = [](auto* field) { return field->currentIndex(); };
+            auto del_func1 = [](auto* field, size_t index) { field->removeItem(index); };
+            auto del_func2 = [](auto* field, size_t index) { delete field->takeItem(index); };
+            auto set_index = [](auto* field, size_t index) { field->setCurrentIndex(index); };
+         #else
+            #error Fehlende Implementierung für Count_in_list für dieses Framework
+         #endif
+         // Ablauf fehlt, aktuellen Index und Count prüfen 
+         size_t ret;
+         if constexpr (ft == EMyFrameworkType::combobox) {
+            auto field = Find<fw_Combobox>(strField);
+            del_func1(field, index);
+         }
+         if constexpr (ft == EMyFrameworkType::listbox) {
+            auto field = Find<fw_Listbox>(strField);
+            del_func2(field, index);
+         }
+         else static_assert_no_match();
+         return ret;
+      }
+
 
       template <EMyFrameworkType ft>
       size_t Count_in_list(std::string const& strField) {
@@ -1131,10 +1160,11 @@ struct my_formlist_iterator {
    using iterator_category = std::input_iterator_tag;
    using value_type = ty;
    using difference_type = std::ptrdiff_t;
-   using reference = value_type;
+   using reference = value_type&;
    using pointer = const value_type*;
 
    my_formlist_iterator() = default;
+   
    my_formlist_iterator(TMyForm* frm, std::string const& fld) : 
       form(frm), strField(fld) {
       ++* this;
@@ -1155,7 +1185,10 @@ struct my_formlist_iterator {
       return *this;
       }
 
-   reference operator*() const { if (!form) throw std::runtime_error("xxx"); return form->Value_in_list<ft, ty>(strField, start_pos - 1); }
+   value_type operator*() const { 
+      if (!form) throw std::runtime_error("unexpected error in my_formlist_iterator, form is null"); 
+      return form->Get_Value_in_list<ft, ty>(strField, start_pos - 1); 
+      }
    //pointer operator->() const { return &theLine; }
 
  
@@ -1199,10 +1232,17 @@ private:
 
 template <EMyFrameworkType ft, typename ty>
 struct my_formlist {
+   using const_iterator = my_formlist_iterator<ft, ty>;
    my_formlist(TMyForm* frm, std::string const& fld) : form(frm), strField(fld) { }
    my_formlist(my_formlist<ft, ty> const& ref) : form(ref.form), strField(ref.strField) { }
-   my_formlist_iterator<ft, ty> begin() const { return my_formlist_iterator<ft, ty>(form, strField); }
-   my_formlist_iterator<ft, ty> end() const { return my_formlist_iterator<ft, ty>(); }
+   my_formlist_iterator<ft, ty> begin() { return my_formlist_iterator<ft, ty>(form, strField); }
+   my_formlist_iterator<ft, ty> end() { return my_formlist_iterator<ft, ty>(); }
+   my_formlist_iterator<ft, ty> cbegin() const { return my_formlist_iterator<ft, ty>(form, strField); }
+   my_formlist_iterator<ft, ty> cend() const { return my_formlist_iterator<ft, ty>(); }
+   size_t size(void) const {
+      if(!form) return 0u;	   
+      return form->Count_in_list<ft>(strField); 
+	  }
 
 private:
    TMyForm *form;

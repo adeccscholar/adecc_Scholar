@@ -157,7 +157,7 @@ struct is_container<T
                  decltype(std::declval<T>().begin()),
                  decltype(std::declval<T>().end()),
                  decltype(std::declval<T>().size()),
-                 decltype(std::declval<T>().begin()),
+                 decltype(std::declval<T>().cbegin()),
                  decltype(std::declval<T>().cend()) >> : std::true_type {};
 
 
