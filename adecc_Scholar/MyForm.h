@@ -814,7 +814,8 @@ class TMyForm {
       size_t Delete_Value_in_list(std::string const& strField, size_t index) {
          #if defined BUILD_WITH_VCL || defined BUILD_WITH_FMX
             auto get_index = [](auto* field) { return field->ItemIndex;  };
-            auto del_func  = [](auto* field, size_t index) { return field->Items->Delete(index); };
+            auto del_func1  = [](auto* field, size_t index) { return field->Items->Delete(index); };
+            auto del_func2  = [](auto* field, size_t index) { return field->Items->Delete(index); };
             auto set_index = [](auto* field, size_t index) { field->ItemIndex = index;  };
          #elif defined BUILD_WITH_QT
             auto get_index = [](auto* field) { return field->currentIndex(); };
