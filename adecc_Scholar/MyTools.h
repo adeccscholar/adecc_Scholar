@@ -73,7 +73,6 @@ class TMyTools {
       //------------------------------------------------------------------------
       static std::string trim_right(std::string const& strText, std::string const& strDelimiter = " ") {
          std::string strVal(strText);
-         strVal.erase(strVal.find_last_not_of(strDelimiter), strVal.length());
          return trim_right(std::forward<std::string>(strVal))
          }
 
