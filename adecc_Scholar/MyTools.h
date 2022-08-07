@@ -24,6 +24,9 @@ $HeadURL: $
 #include <algorithm>
 #include <regex>
 #include <charconv>
+#include <system_error>
+
+using namespace std::literals::string_literals;
 
 /** \class
 \brief Tool- Klasse mit Hilfsfunktionen für std::string
@@ -262,8 +265,6 @@ class TMyTools {
          return integral_double_add_Thousand(std::forward<std::string>(src));
          }
 
-      /// \}
-
       //------------------------------------------------------------------------
       template <typename ty>
       static ty string_to_integral(std::string && strSrc) {
@@ -308,6 +309,7 @@ class TMyTools {
       //------------------------------------------------------------------------
       template <typename ty>
       static ty string_to_integral_fmt(std::string const& strSrc) {
+         // add a static_assert(), type_traits for integral
          std::string src = strSrc;
          for(auto it = src.find(cThousand); it != std::string::npos; it = src.find(cThousand)) src.erase(it, 1);
          return string_to_integral<ty>(std::forward<std::string>(src));
@@ -318,97 +320,99 @@ class TMyTools {
       //------------------------------------------------------------------------
       static void check_or_exception(std::errc ec) {
          if(ec == std::errc()) return;
+         std::ostringstream os;
+         os << "error with code " << std::make_error_code(ec) << ", ";
          if(auto it = errc_messages.find(ec); it != errc_messages.end())
-            throw std::runtime_error(it->second);
+            os << "(POSIX: " << it->second.first << "):" << it->second.second;
          else
-            throw std::runtime_error("unexpected error");
+            os << "unexpected error";
+         throw std::runtime_error(os.str());
          }
 
    private:
-      static inline std::string::value_type cScale    = ',';
-      static inline std::string::value_type cThousand = '.';
-      static inline std::map<std::errc, std::string> errc_messages = {
-            { std::errc::address_family_not_supported,        "address_family_not_supported" },
-            { std::errc::address_in_use,                      "address_in_use" },
-            { std::errc::address_not_available,               "address_not_available" },
-            { std::errc::already_connected,                   "already_connected" },
-            { std::errc::argument_list_too_long,              "argument_list_too_long" },
-            { std::errc::argument_out_of_domain,              "argument_out_of_domain" },
-            { std::errc::bad_address,                         "bad_address" },
-            { std::errc::bad_file_descriptor,                 "bad_file_descriptor" },
-            { std::errc::bad_message,                         "bad_message" },
-            { std::errc::broken_pipe,                         "broken_pipe" },
-            { std::errc::connection_aborted,                  "connection_aborted" },
-            { std::errc::connection_already_in_progress,      "connection_already_in_progress" },
-            { std::errc::connection_refused,                  "connection_refused" },
-            { std::errc::connection_reset,                    "connection_reset" },
-            { std::errc::cross_device_link,                   "cross_device_link" },
-            { std::errc::destination_address_required,        "destination_address_required" },
-            { std::errc::device_or_resource_busy,             "device_or_resource_busy" },
-            { std::errc::directory_not_empty,                 "directory_not_empty" },
-            { std::errc::executable_format_error,             "executable_format_error" },
-            { std::errc::file_exists,                         "file_exists" },
-            { std::errc::file_too_large,                      "file_too_large" },
-            { std::errc::filename_too_long,                   "filename_too_long" },
-            { std::errc::function_not_supported,              "function_not_supported" },
-            { std::errc::host_unreachable,                    "host_unreachable" },
-            { std::errc::identifier_removed,                  "identifier_removed" },
-            { std::errc::illegal_byte_sequence,               "illegal_byte_sequence" },
-            { std::errc::inappropriate_io_control_operation,  "inappropriate_io_control_operation" },
-            { std::errc::interrupted,                         "interrupted" },
-            { std::errc::invalid_argument,                    "invalid_argument" },
-            { std::errc::invalid_seek,                        "invalid_seek" },
-            { std::errc::io_error,                            "io_error" },
-            { std::errc::is_a_directory,                      "is_a_directory" },
-            { std::errc::message_size,                        "message_size" },
-            { std::errc::network_down,                        "network_down" },
-            { std::errc::network_reset,                       "network_reset" },
-            { std::errc::network_unreachable,                 "network_unreachable" },
-            { std::errc::no_buffer_space,                     "no_buffer_space" },
-            { std::errc::no_child_process,                    "no_child_process" },
-            { std::errc::no_link,                             "no_link" },
-            { std::errc::no_lock_available,                   "no_lock_available" },
-            { std::errc::no_message_available,                "no_message_available" },
-            { std::errc::no_message,                          "no_message" },
-            { std::errc::no_protocol_option,                  "no_protocol_option" },
-            { std::errc::no_space_on_device,                  "no_space_on_device" },
-            { std::errc::no_stream_resources,                 "no_stream_resources" },
-            { std::errc::no_such_device_or_address,           "no_such_device_or_address" },
-            { std::errc::no_such_device,                      "no_such_device" },
-            { std::errc::no_such_file_or_directory,           "no_such_file_or_directory" },
-            { std::errc::no_such_process,                     "no_such_process" },
-            { std::errc::not_a_directory,                     "not_a_directory" },
-            { std::errc::not_a_socket,                        "not_a_socket" },
-            { std::errc::not_a_stream,                        "not_a_stream" },
-            { std::errc::not_connected,                       "not_connected" },
-            { std::errc::not_enough_memory,                   "not_enough_memory" },
-            { std::errc::not_supported,                       "not_supported" },
-            { std::errc::operation_canceled,                  "operation_canceled" },
-            { std::errc::operation_in_progress,               "operation_in_progress" },
-            { std::errc::operation_not_permitted,             "operation_not_permitted" },
-            { std::errc::operation_not_supported,             "operation_not_supported" },
-            { std::errc::operation_would_block,               "operation_would_block" },
-            { std::errc::owner_dead,                          "owner_dead" },
-            { std::errc::permission_denied,                   "permission_denied" },
-            { std::errc::protocol_error,                      "protocol_error" },
-            { std::errc::protocol_not_supported,              "protocol_not_supported" },
-            { std::errc::read_only_file_system,               "read_only_file_system" },
-            { std::errc::resource_deadlock_would_occur,       "resource_deadlock_would_occur" },
-            { std::errc::resource_unavailable_try_again,      "resource_unavailable_try_again" },
-            { std::errc::result_out_of_range,                 "result_out_of_range" },
-            { std::errc::state_not_recoverable,               "state_not_recoverable" },
-            { std::errc::stream_timeout,                      "stream_timeout" },
-            { std::errc::text_file_busy,                      "text_file_busy" },
-            { std::errc::timed_out,                           "timed_out" },
-            { std::errc::too_many_files_open_in_system,       "too_many_files_open_in_system" },
-            { std::errc::too_many_files_open,                 "too_many_files_open" },
-            { std::errc::too_many_links,                      "too_many_links" },
-            { std::errc::too_many_symbolic_link_levels,       "too_many_symbolic_link_levels" },
-            { std::errc::value_too_large,                     "value_too_large" },
-            { std::errc::wrong_protocol_type,                 "wrong_protocol_type" } };
-
+      static inline std::string::value_type cScale    = ',';  ///< user defined scale for decimal numbers
+      static inline std::string::value_type cThousand = '.';  ///< user defined thousand separator for decimal numbers
+      /// informations about errors with key = std::errc and pair of strings with informations for this error
+      static inline std::map<std::errc, std::pair<std::string, std::string>> errc_messages = {
+            { std::errc::address_family_not_supported,       { "EAFNOSUPPORT"s,    "address family not supported"s } },
+            { std::errc::address_in_use,                     { "EADDRINUSE"s,      "address in use"s } },
+            { std::errc::address_not_available,              { "EADDRNOTAVAIL"s,   "address not available"s } },
+            { std::errc::already_connected,                  { "EISCONN"s,         "already connected"s } },
+            { std::errc::argument_list_too_long,             { "E2BIG"s,           "argument list too long"s } },
+            { std::errc::argument_out_of_domain,             { "EDOM"s,            "argument out of domain"s } },
+            { std::errc::bad_address,                        { "EFAULT"s,          "bad address"s } },
+            { std::errc::bad_file_descriptor,                { "EBADF"s,           "bad file descriptor"s } },
+            { std::errc::bad_message,                        { "EBADMSG"s,         "bad message"s } },
+            { std::errc::broken_pipe,                        { "EPIPE"s,           "broken pipe"s } },
+            { std::errc::connection_aborted,                 { "ECONNABORTED"s,    "connection aborted"s } },
+            { std::errc::connection_already_in_progress,     { "EALREADY"s,        "connection already in progress"s } },
+            { std::errc::connection_refused,                 { "ECONNREFUSED"s,    "connection refused"s } },
+            { std::errc::connection_reset,                   { "ECONNRESET"s,      "connection reset"s } },
+            { std::errc::cross_device_link,                  { "EXDEV"s,           "cross device link"s } },
+            { std::errc::destination_address_required,       { "EDESTADDRREQ"s,    "destination address required"s } },
+            { std::errc::device_or_resource_busy,            { "EBUSY"s,           "device or resource busy"s } },
+            { std::errc::directory_not_empty,                { "ENOTEMPTY"s,       "directory not empty"s } },
+            { std::errc::executable_format_error,            { "ENOEXEC"s,         "executable format error"s } },
+            { std::errc::file_exists,                        { "EEXIST"s,          "file exists"s } },
+            { std::errc::file_too_large,                     { "EFBIG"s,           "file too large"s } },
+            { std::errc::filename_too_long,                  { "ENAMETOOLONG"s,    "filename too long"s } },
+            { std::errc::function_not_supported,             { "ENOSYS"s,          "function not supported"s } },
+            { std::errc::host_unreachable,                   { "EHOSTUNREACH"s,    "host unreachable"s } },
+            { std::errc::identifier_removed,                 { "EIDRM"s,           "identifier removed"s } },
+            { std::errc::illegal_byte_sequence,              { "EILSEQ"s,          "illegal byte sequence"s } },
+            { std::errc::inappropriate_io_control_operation, { "ENOTTY"s,          "inappropriate io control operation"s } },
+            { std::errc::interrupted,                        { "EINTR"s,           "interrupted"s } },
+            { std::errc::invalid_argument,                   { "EINVAL"s,          "invalid argument"s } },
+            { std::errc::invalid_seek,                       { "ESPIPE"s,          "invalid seek"s } },
+            { std::errc::io_error,                           { "EIO"s,             "io error"s } },
+            { std::errc::is_a_directory,                     { "EISDIR"s,          "is a directory"s } },
+            { std::errc::message_size,                       { "EMSGSIZE"s,        "message size"s } },
+            { std::errc::network_down,                       { "ENETDOWN"s,        "network down"s } },
+            { std::errc::network_reset,                      { "ENETRESET"s,       "network reset"s } },
+            { std::errc::network_unreachable,                { "ENETUNREACH"s,     "network unreachable"s } },
+            { std::errc::no_buffer_space,                    { "ENOBUFS"s,         "nobufferspace"s } },
+            { std::errc::no_child_process,                   { "ECHILD"s,          "no child process"s } },
+            { std::errc::no_link,                            { "ENOLINK"s,         "no link"s } },
+            { std::errc::no_lock_available,                  { "ENOLCK"s,          "no lock available"s } },
+            { std::errc::no_message_available,               { "ENODATA"s,         "no message available"s } },
+            { std::errc::no_message,                         { "ENOMSG"s,          "no message"s } },
+            { std::errc::no_protocol_option,                 { "ENOPROTOOPT"s,     "no protocol option"s } },
+            { std::errc::no_space_on_device,                 { "ENOSPC"s,          "no space on device"s } },
+            { std::errc::no_stream_resources,                { "ENOSR"s,           "no stream_resources"s } },
+            { std::errc::no_such_device_or_address,          { "ENXIO"s,           "no suc device or address"s } },
+            { std::errc::no_such_device,                     { "ENODEV"s,          "no such device"s } },
+            { std::errc::no_such_file_or_directory,          { "ENOENT"s,          "no such file or directory"s } },
+            { std::errc::no_such_process,                    { "ESRCH"s,           "no such process"s } },
+            { std::errc::not_a_directory,                    { "ENOTDIR"s,         "not a directory"s } },
+            { std::errc::not_a_socket,                       { "ENOTSOCK"s,        "not a socket"s } },
+            { std::errc::not_a_stream,                       { "ENOSTR"s,          "not a stream"s } },
+            { std::errc::not_connected,                      { "ENOTCONN"s,        "not connected"s } },
+            { std::errc::not_enough_memory,                  { "ENOMEM"s,          "not enough memory"s } },
+            { std::errc::not_supported,                      { "ENOTSUP"s,         "not supported"s } },
+            { std::errc::operation_canceled,                 { "ECANCELED"s,       "operation canceled"s } },
+            { std::errc::operation_in_progress,              { "EINPROGRESS"s,     "operation in progress"s } },
+            { std::errc::operation_not_permitted,            { "EPERM"s,           "operation not permitted"s } },
+            { std::errc::operation_not_supported,            { "EOPNOTSUPP"s,      "operation not supported"s } },
+            { std::errc::operation_would_block,              { "EWOULDBLOCK"s,     "operation would block"s } },
+            { std::errc::owner_dead,                         { "EOWNERDEAD"s,      "owner dead"s } },
+            { std::errc::permission_denied,                  { "EACCES"s,          "permission denied"s } },
+            { std::errc::protocol_error,                     { "EPROTO"s,          "protocol error"s } },
+            { std::errc::protocol_not_supported,             { "EPROTONOSUPPORT"s, "protocol not supported"s } },
+            { std::errc::read_only_file_system,              { "EROFS"s,           "read only file system"s } },
+            { std::errc::resource_deadlock_would_occur,      { "EDEADLK"s,         "resource deadlock would occur"s } },
+            { std::errc::resource_unavailable_try_again,     { "EAGAIN"s,          "resource unavailable try again"s } },
+            { std::errc::result_out_of_range,                { "ERANGE"s,          "result out of range"s } },
+            { std::errc::state_not_recoverable,              { "ENOTRECOVERABLE"s, "state not recoverable"s } },
+            { std::errc::stream_timeout,                     { "ETIME"s,           "stream timeout"s } },
+            { std::errc::text_file_busy,                     { "ETXTBSY"s,         "text file busy"s } },
+            { std::errc::timed_out,                          { "ETIMEDOUT"s,       "timed out"s } },
+            { std::errc::too_many_files_open_in_system,      { "ENFILE"s,          "too many files open in system"s } },
+            { std::errc::too_many_files_open,                { "EMFILE"s,          "too many files open"s } },
+            { std::errc::too_many_links,                     { "EMLINK"s,          "too many links"s } },
+            { std::errc::too_many_symbolic_link_levels,      { "ELOOP"s,           "too many symbolic link levels"s } },
+            { std::errc::value_too_large,                    { "EOVERFLOW"s,       "value too large"s } },
+            { std::errc::wrong_protocol_type,                { "EPROTOTYPE"s,      "wrong protocol type"s } } };
    };
-
 
 #endif
 

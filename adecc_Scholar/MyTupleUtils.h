@@ -37,6 +37,32 @@ inline size_t mySum(std::tuple<Args...> const& value) {
    }
 
 
+class TMyTimer {
+    private:
+       std::atomic<bool> boActive = false;
+      // std::atomic<std::vector<std::function<void ()>>> tasks;
+    public:
+       TMyTimer() = default;
+       TMyTimer(TMyTimer const&) = delete;
+
+       template <typename func_type, typename... arguments>
+       void add_task(unsigned int interval, func_type func, arguments&&... args) {
+          std::function<typename std::result_of<func_type(arguments...)>::type()> task(std::bind(std::forward<func_type>(func), std::forward<arguments>(args)...));
+          //std::function<void ()> task(std::bind(std::forward<func_type>(func), std::forward<arguments>(args)...));
+          std::thread([this, interval, task]() {
+             while(this->boActive == true) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(interval));
+                if(this->boActive) task();
+                }
+             }).detach();
+          }
+
+    void start() { boActive = true; }
+    void stop() { boActive = false; }
+    };
+
+
+
 template <typename tty, typename fty, typename... Args>
 inline auto Call(tty& time, fty function, Args... args) {
    auto func_start = std::chrono::high_resolution_clock::now();
