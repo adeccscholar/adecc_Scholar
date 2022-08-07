@@ -42,45 +42,42 @@ class TMyTools {
       /** \name Methoden zum Trimmen von std::string
          \{
       */
-      static std::string trim_left(std::string const& strText, std::string const& strDelimiter = " ") {
-         std::string strVal(strText);
+
+      //------------------------------------------------------------------------
+      static std::string trim_left(std::string && strVal, std::string const& strDelimiter = " ") {
          strVal.erase(0, strVal.find_first_not_of(strDelimiter));
          return strVal;
+         }
+
+      //------------------------------------------------------------------------
+      static std::string trim_right(std::string && strVal, std::string const& strDelimiter = " ") {
+         strVal.erase(strVal.find_last_not_of(strDelimiter), strVal.length());
+         return strVal;
+         }
+
+      //------------------------------------------------------------------------
+      static std::string trim(std::string && strVal, std::string const& strDelimiter = " ") {
+         strVal.erase(0, strVal.find_first_not_of(strDelimiter));
+         strVal.erase(strVal.find_last_not_of(strDelimiter) + 1, strVal.length());
+         return strVal;
+         }
+
+      static std::string trim_left(std::string const& strText, std::string const& strDelimiter = " ") {
+         std::string strVal(strText);
+		 return trim_left(std::forward<std::string>(strVal))
          }
 
       //------------------------------------------------------------------------
       static std::string trim_right(std::string const& strText, std::string const& strDelimiter = " ") {
          std::string strVal(strText);
          strVal.erase(strVal.find_last_not_of(strDelimiter), strVal.length());
-         return strVal;
+         return trim_right(std::forward<std::string>(strVal))
          }
 
       //------------------------------------------------------------------------
       static std::string trim(std::string const& strText, std::string const& strDelimiter = " ") {
          std::string strVal(strText);
-         strVal.erase(0, strVal.find_first_not_of(strDelimiter));
-         strVal.erase(strVal.find_last_not_of(strDelimiter) + 1, strVal.length());
-         return strVal;
-         }
-
-
-      //------------------------------------------------------------------------
-      static std::string&& trim_left(std::string && strVal, std::string const& strDelimiter = " ") {
-         strVal.erase(0, strVal.find_first_not_of(strDelimiter));
-         return std::move(strVal);
-         }
-
-      //------------------------------------------------------------------------
-      static std::string&& trim_right(std::string && strVal, std::string const& strDelimiter = " ") {
-         strVal.erase(strVal.find_last_not_of(strDelimiter), strVal.length());
-         return std::move(strVal);
-         }
-
-      //------------------------------------------------------------------------
-      static std::string&& trim(std::string && strVal, std::string const& strDelimiter = " ") {
-         strVal.erase(0, strVal.find_first_not_of(strDelimiter));
-         strVal.erase(strVal.find_last_not_of(strDelimiter) + 1, strVal.length());
-         return std::move(strVal);
+         return trim(std::forward<std::string>(strVal))
          }
 
       /// \}
