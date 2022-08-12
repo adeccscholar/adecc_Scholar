@@ -67,19 +67,19 @@ class TMyTools {
 
       static std::string trim_left(std::string const& strText, std::string const& strDelimiter = " ") {
          std::string strVal(strText);
-		 return trim_left(std::forward<std::string>(strVal))
+		 return trim_left(std::forward<std::string>(strVal));
          }
 
       //------------------------------------------------------------------------
       static std::string trim_right(std::string const& strText, std::string const& strDelimiter = " ") {
          std::string strVal(strText);
-         return trim_right(std::forward<std::string>(strVal))
+         return trim_right(std::forward<std::string>(strVal));
          }
 
       //------------------------------------------------------------------------
       static std::string trim(std::string const& strText, std::string const& strDelimiter = " ") {
          std::string strVal(strText);
-         return trim(std::forward<std::string>(strVal))
+         return trim(std::forward<std::string>(strVal));
          }
 
       /// \}
