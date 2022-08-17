@@ -28,23 +28,40 @@ $HeadURL: $
 
 using namespace std::literals::string_literals;
 
-class TMyToggle {
+class TMyGuard {
    private:
-      bool &boActive;
-      bool boRunning = false;
+      std::string strMessage;
+      bool boActive = false;
+   public:
+      TMyGuard(void) = delete;
+      TMyGuard(TMyGuard const&) = delete;
+      TMyGuard(TMyGuard&&) = delete;
+      
+      TMyGuard(std::string const& msg) : strMessage(msg) { }
+      virtual ~TMyGuard() { }
+
+      void               Active() { boActive = true; }
+
+      std::string const& Message() const { return strMessage; }
+      bool               IsActive() const { return boActive; }
+};
+
+class TMyToggle : TMyGuard {
+   private:
+      bool &boRunning;
    public:
       TMyToggle(void) = delete;
       TMyToggle(TMyToggle const&) = delete;
       TMyToggle(TMyToggle&&) = delete;
-      TMyToggle(bool& boRef) : boActive(boRef) { 
-         if(boActive) throw std::runtime_error("toggle is active");
-         boActive = true;
-         boRunning = true;
+      TMyToggle(std::string const& msg, bool& boRef) : TMyGuard(msg), boRunning(boRef) { 
+         if(boRunning) throw std::runtime_error(Message() + ", value is true");
+         Active();
          }
       ~TMyToggle() {
-         if(boRunning) boActive = false;
+         if(IsActive()) boRunning = false;
          }
    };
+
 
 
 /** \class
