@@ -13,21 +13,22 @@
 #endif
 
 std::string TimeStamp(void) {
-   #if ((defined(_MSVC_LANG) && _MSVC_LANG >= 202002L) || __cplusplus >= 202002L)
-   auto const now = std::chrono::system_clock::now();
-   auto const timew = std::chrono::current_zone()->to_local(now);
-   const auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()) % 1000;
-   return std::format(L"{:%d.%m.%Y %X},{:03d}", timew, millis.count());
-   #else
-   std::ostringstream os;
    auto const now =  std::chrono::system_clock::now();
-   const std::time_t time = std::chrono::system_clock::to_time_t(now);
    const auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()) % 1000;
-   os << std::put_time(std::localtime(&time), "%d.%m.%Y %X"); 
-   os << "," << std::setfill('0') << std::setw(3) << millis.count();
-   return os.str();
+   #if ((defined(_MSVC_LANG) && _MSVC_LANG >= 202002L) || __cplusplus >= 202002L)
+      auto const timew = std::chrono::current_zone()->to_local(now);
+      return std::format(L"{:%d.%m.%Y %X},{:03d}", timew, millis.count());
+   #else
+      std::ostringstream os;
+      const std::time_t timew = std::chrono::system_clock::to_time_t(now);
+      os << std::put_time(std::localtime(&timew), "%d.%m.%Y %X"); 
+      os << "," << std::setfill('0') << std::setw(3) << millis.count();
+      return os.str();
    #endif
    }
+
+
+
 
 class TMyLogger {
    private:
@@ -68,6 +69,7 @@ class TMyLogger {
          Write(of);
          }
 
+      
       void except() {
          std::ostringstream os;
          os << "error at " << strTime << std::endl

@@ -28,6 +28,25 @@ $HeadURL: $
 
 using namespace std::literals::string_literals;
 
+class TMyToggle {
+   private:
+      bool &boActive;
+      bool boRunning = false;
+   public:
+      TMyToggle(void) = delete;
+      TMyToggle(TMyToggle const&) = delete;
+      TMyToggle(TMyToggle&&) = delete;
+      TMyToggle(bool& boRef) : boActive(boRef) { 
+         if(boActive) throw std::runtime_error("toggle is active");
+         boActive = true;
+         boRunning = true;
+         }
+      ~TMyToggle() {
+         if(boRunning) boActive = false;
+         }
+   };
+
+
 /** \class
 \brief Tool- Klasse mit Hilfsfunktionen für std::string
 \details Tool- Klasse mit Hilfsfunktionen zum Bearbeiten von std::string. Neben
