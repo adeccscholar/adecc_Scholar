@@ -47,12 +47,12 @@ class TMyTimer {
 
        template <typename func_type, typename... arguments>
        void add_task(unsigned int interval, func_type func, arguments&&... args) {
-          std::function<typename std::result_of<func_type(arguments...)>::type()> task(std::bind(std::forward<func_type>(func), std::forward<arguments>(args)...));
+          std::function<typename std::result_of<func_type(arguments...)>::type()> localtask(std::bind(std::forward<func_type>(func), std::forward<arguments>(args)...));
           //std::function<void ()> task(std::bind(std::forward<func_type>(func), std::forward<arguments>(args)...));
-          std::thread([this, interval, task]() {
+          std::thread([this, interval, localtask]() {
              while(this->boActive == true) {
                 std::this_thread::sleep_for(std::chrono::milliseconds(interval));
-                if(this->boActive) task();
+                if(this->boActive) localtask();
                 }
              }).detach();
           }

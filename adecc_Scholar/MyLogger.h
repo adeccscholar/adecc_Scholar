@@ -65,7 +65,7 @@ class TMyLogger {
          }
 
       void Write(void) {
-         ofstream of(strLogFile, std::ios::app);
+         std::ofstream of(strLogFile, std::ios::app);
          Write(of);
          }
 
