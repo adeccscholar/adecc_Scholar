@@ -1154,7 +1154,24 @@ class TMyForm {
 
    };
 
+/*
 
+Table  (erweitern für Listbox + Combobox)
+
+template <typename ft>
+std::vector<size_t> GetAll(std::string const& strField);
+std::vector<size_t> GetSelected(std::string const& strField);
+
+int GetTableRowCount(std::string const& strField);
+int GetTableColCount(std::string const& strField);
+
+template <typename ty>
+ty GetTableItem(std::string const& strField, int iRow, int iCol); // 0 - n-1
+
+template <typename ty>
+ty GetListItem(std::string const& strField, int iRow); // für listbox und combobox
+
+*/
 
 template <EMyFrameworkType ft, typename ty>
 struct my_formlist_iterator {
