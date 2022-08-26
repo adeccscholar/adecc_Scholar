@@ -897,6 +897,129 @@ class TMyForm {
             }
          }
 
+
+      // Erweiterungen für Tabellen
+      //------------------------------------------------------------------------------------------------------------------------
+      size_t GetTableRows(std::string const& stdField) {
+          #if defined BUILD_WITH_VCL
+          auto get_row_cnt = [](auto fld) -> int { return fld->Items->Count; };
+		  #elif defined BUILD_WITH_FMX
+		  auto get_row_cnt = [](auto fld) -> int { return fld->RowCount; };
+          #elif defined BUILD_WITH_QT
+          auto get_row_cnt = [](auto fld) -> int { return fld->rowCount(); };
+          #else
+            #error Fehlende Implementierung für GetTableRows in diesem Framework
+          #endif
+	      auto field = Find<fw_Table>(strField);
+		  auto iCnt = get_row_cnt(field);
+		  if(iCnt < 0) throw std::runtime_error("value is negative for TableRows");
+		  return static_cast<size_t>(iCnt);
+	      }
+// ---  
+	  size_t GetTableColumns(std::string const& stdField) { 
+          #if defined BUILD_WITH_VCL
+          auto get_col_cnt = [](auto fld) -> int { return fld->Columns->Count; };
+		  #elif defined BUILD_WITH_FMX
+		  auto get_col_cnt = [](auto fld) -> int { return fld->ColumnCount; };
+          #elif defined BUILD_WITH_QT
+          auto get_col_cnt = [](auto fld) -> int { return fld->columnCount(); };
+          #else
+            #error Fehlende Implementierung für GetTableColumns in diesem Framework
+          #endif
+	      auto field = Find<fw_Table>(strField);
+		  auto iCnt = get_col_cnt(field);
+		  if(iCnt < 0) throw std::runtime_error("value is negative for TableCols");
+		  return static_cast<size_t>(iCnt);
+	      }
+
+// ---
+
+      std::vector<size_t> GetAllTableRows(std::string const& strField) {
+          std::vector<size_t> rows(GetTableRows(strField));
+	      std::generate(rows.begin(), rows.end(), [i = 0]() mutable { return i++; });
+          return rows;
+          }
+
+      std::vector<size_t> GetSelectedTableRows(std::string const& strField) {
+          std::vector<size_t> selected_rows;
+		  auto field = Find<fw_Table>(strField);
+		  
+          #if defined BUILD_WITH_VCL
+             TItemStates selected =TItemStates() << isSelected;
+             for(TListItem* item = field->Selected; item; item = field->GetNextItem(item, sdAll, selected)) {
+                selected_rows.push_back(static_cast<size_t>(item->Index));
+                }
+          #elif defined BUILD_WITH_FMX
+		     // was ist, wenn keine Zeile gewählt, -1 ?
+             selected_rows.push_back(static_cast<size_t>(field->Selected));		  
+          #elif defined BUILD_WITH_QT
+             QItemSelectionModel* selectModel = field->selectionModel();
+             foreach(QModelIndex index, selectModel->selectedRows()) selected_rows.push_back(static_cast<size_t>(index.row());			
+          #else
+            #error Fehlende Implementierung für GetSelectedTableRows in diesem Framework
+          #endif
+
+          return selected_rows;
+	     }		  
+	  
+// ---	  
+
+      template <typename ty>
+	  std::optional<ty> GetTableValue(std::string const& strField, int iRow, int iCol) {
+          #if defined BUILD_WITH_VCL
+          auto get_col_cnt = [](auto fld) -> int { return fld->Columns->Count; };
+		  auto get_row_cnt = [](auto fld) -> int { return fld->Items->Count; };
+		  
+		  auto get_item = [](auto fld, int iRow, int iCol) { 
+		     TListItem* item = fld->Items->Item[iRow];
+             if(iCol == 0) {
+                return item->Caption;
+                }
+             else {
+                return item->SubItems->Strings[iCol - 1]; 
+                }
+             };
+	      auto get_length = [](fw_String const& val) { return val.Length(); };		 
+		  #elif defined BUILD_WITH_FMX
+		  auto get_col_cnt = [](auto fld) -> int { return fld->ColumnCount; };
+		  auto get_row_cnt = [](auto fld) -> int { return fld->RowCount; };
+          auto get_item    = [](auto fld, int iRow, int iCol) { return fld->Cells[iCol][iRow]; }; 
+          auto get_length = [](fw_String const& val) { return val.Length(); };		 
+		  #elif defined BUILD_WITH_QT
+          auto get_col_cnt = [](auto fld) -> int { return fld->columnCount(); };
+		  auto get_row_cnt = [](auto fld) -> int { return fld->rowCount(); };
+		  auto get_item    = [](auto fld, int iRow, int iCol) { return fld->item(iRow, iCol)->text(); };
+		  auto get_length = [](fw_String const& val) { return val.length(); };
+          #else
+            #error Fehlende Implementierung für GetTableValues in diesem Framework
+          #endif
+	      auto field = Find<fw_Table>(strField);
+		  
+		  if(iRow < 1 || iRow > get_row_cnt(field) - 1) {
+			std::ostringstream os;
+			os << "wrong paramter for row in GetTableValue for formular \"" << FormName()
+		       << "\" field \"" << strField << "\", row is " << iRow << " (max is " << get_row_cnt(field) - 1
+               << ")."			   
+			throw std::runtime_error(os.str());
+  	        }
+
+		  if(iCol < 1 || iCol > get_col_cnt(field) -1) {
+			std::ostringstream os;
+			os << "wrong paramter for col in GetTableValue for formular \"" << FormName()
+		       << "\" field \"" << strField << "\", col is " << iRow << " (max is " << get_col_cnt(field) - 1
+               << ")."			   
+			throw std::runtime_error(os.str());
+  	        }
+			
+		auto item = get_item(iRow, iCol);	
+		if(get_length(item) == 0) return std::nullopt;
+		else {
+		   return std::make_optional(GetText<ty>(item));	
+		   }
+	  };
+		
+
+
    private:
       fw_Form* Form(void) {
          if(form == nullptr) throw std::runtime_error("Critical error, member form in TMyForm is nullptr");
