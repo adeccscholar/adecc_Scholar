@@ -900,7 +900,7 @@ class TMyForm {
 
       // Erweiterungen für Tabellen
       //------------------------------------------------------------------------------------------------------------------------
-      size_t GetTableRows(std::string const& stdField) {
+      size_t GetTableRows(std::string const& strField) {
           #if defined BUILD_WITH_VCL
           auto get_row_cnt = [](auto fld) -> int { return fld->Items->Count; };
 		  #elif defined BUILD_WITH_FMX
@@ -916,7 +916,7 @@ class TMyForm {
 		  return static_cast<size_t>(iCnt);
 	      }
 // ---  
-	  size_t GetTableColumns(std::string const& stdField) { 
+	  size_t GetTableColumns(std::string const& strField) { 
           #if defined BUILD_WITH_VCL
           auto get_col_cnt = [](auto fld) -> int { return fld->Columns->Count; };
 		  #elif defined BUILD_WITH_FMX
@@ -995,23 +995,23 @@ class TMyForm {
           #endif
 	      auto field = Find<fw_Table>(strField);
 		  
-		  if(iRow < 1 || iRow > get_row_cnt(field) - 1) {
+		  if(iRow < 0 || iRow > get_row_cnt(field) - 1) {
 			std::ostringstream os;
 			os << "wrong paramter for row in GetTableValue for formular \"" << FormName()
 		       << "\" field \"" << strField << "\", row is " << iRow << " (max is " << get_row_cnt(field) - 1
-               << ")."			   
+               << ").";			   
 			throw std::runtime_error(os.str());
   	        }
 
-		  if(iCol < 1 || iCol > get_col_cnt(field) -1) {
+		  if(iCol < 0 || iCol > get_col_cnt(field) -1) {
 			std::ostringstream os;
 			os << "wrong paramter for col in GetTableValue for formular \"" << FormName()
-		       << "\" field \"" << strField << "\", col is " << iRow << " (max is " << get_col_cnt(field) - 1
-               << ")."			   
+		       << "\" field \"" << strField << "\", col is " << iCol << " (max is " << get_col_cnt(field) - 1
+               << ").";			   
 			throw std::runtime_error(os.str());
   	        }
 			
-		auto item = get_item(iRow, iCol);	
+		auto item = get_item(field, iRow, iCol);	
 		if(get_length(item) == 0) return std::nullopt;
 		else {
 		   return std::make_optional(GetText<ty>(item));	
