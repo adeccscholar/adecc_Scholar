@@ -285,7 +285,7 @@ class ListBoxStreamBuf : public StreamBufBase<ty> {
     private:
        TListBox* value;
     public:
-       ListBoxStreamBuf(TListBox* para, bool boClean = true)  : StreamBufBase<ty>() {
+       ListBoxStreamBuf(TListBox* para, bool boMultiSelect = false, bool boClean = true)  : StreamBufBase<ty>() {
           value = para;
           if(boClean) value->Items->Clear();
           }
@@ -307,8 +307,10 @@ class ListBoxStreamBuf : public StreamBufBase<ty> {
 private:
    QListWidget* value;
 public:
-   ListBoxStreamBuf(QListWidget* para, bool boClean = true) : StreamBufBase<ty>() {
+   ListBoxStreamBuf(QListWidget* para, bool boMultiSelect = false, bool boClean = true) : StreamBufBase<ty>() {
       value = para;
+      if (boMultiSelect) value->setSelectionMode(QAbstractItemView::ExtendedSelection);
+      else value->setSelectionMode(QAbstractItemView::SingleSelection);
       if (boClean) value->clear();
    }
 
@@ -404,8 +406,9 @@ class ListViewStreamBuf : public ListStreamBufBase<ty> {
       ListViewStreamBuf(TListView* para, std::vector<tplList<ty>> const& caps, bool boClean = true)  : ListStreamBufBase<ty>(caps) {
          value = para;
          item = nullptr;
-         value->ViewStyle = vsReport;
-         value->RowSelect = true;
+         value->ViewStyle   = vsReport;
+         value->RowSelect   = true;
+         value->MultiSelect = true;
          boNewItem = true;
          if(boClean) {
             value->Items->Clear();
@@ -538,7 +541,7 @@ public:
       tw->verticalHeader()->setVisible(false);
       tw->setEditTriggers(QAbstractItemView::NoEditTriggers);
       tw->setSelectionBehavior(QAbstractItemView::SelectRows);
-      tw->setSelectionMode(QAbstractItemView::SingleSelection);
+      tw->setSelectionMode(QAbstractItemView::ExtendedSelection); // SingleSelection
       tw->setShowGrid(false);
       
       if (boClean) {

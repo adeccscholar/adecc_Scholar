@@ -72,9 +72,8 @@ class TMyWait {
    };
 
 #else
-  #error Fehlende Klasse TMyWait in diesem Framework
+  #error Missing implementation for class TMyWait for the chosen framework
 #endif
-
 
 
 class TMyForm {
@@ -109,7 +108,7 @@ class TMyForm {
                                { EMyAlignmentType::unknown, Qt::AlignVCenter | Qt::AlignLeft }
                                };
       #else
-         #error fehlende definition von align_type_conv in diesem Framework
+         #error Missing definition of TMyForm::align_type_conv for the chosen framework
       #endif
 
    public:
@@ -143,7 +142,7 @@ class TMyForm {
          #elif defined BUILD_WITH_QT
             return Form()->windowTitle().toStdString();
          #else
-            #error fehlende Implementierung für SetCaption() in diesem Framework
+            #error Missing implementation for function TMyForm::GetCaption() for the chosen framework
          #endif
          }
 
@@ -154,7 +153,7 @@ class TMyForm {
          #elif defined BUILD_WITH_QT
             auto SetFunc = [this](fw_String const& val) { this->Form()->setWindowTitle(val); };
          #else
-            #error fehlende Implementierung für SetCaption() in diesem Framework
+            #error Missing implementation for function TMyForm::SetCaption() for the chosen framework
          #endif
        SetFunction(SetFunc, strCaption);
        }
@@ -166,7 +165,7 @@ class TMyForm {
         #elif defined BUILD_WITH_QT
            return Form()->objectName().toStdString();
         #else
-          #error fehlende Implementierung für FormName() in diesem Framework
+          #error Missing implementation for funcion TMyForm::FormName() for the chosen framework
         #endif
        }
 
@@ -261,7 +260,7 @@ class TMyForm {
          #elif defined BUILD_WITH_QT
            auto set =[this](auto fld, Qt::Alignment align_val) { fld->setAlignment(align_val); };
          #else
-           #error fehlende Implementierung von Alignment() in diesem Framework
+           #error Missing implementation for function TMyForm::Alignment() for the chosen framework
          #endif
 
          if(auto myret = align_type_conv.find(align); myret != align_type_conv.end()) {
@@ -292,7 +291,7 @@ class TMyForm {
          #elif defined BUILD_WITH_QT
            auto set =[this](auto fld, bool boSet) { fld->setReadOnly(boSet); };
          #else
-           #error fehlende Implementierung von Alignment() in diesem Framework
+           #error Missing implementation for function TMyForm::ReadOnly() for the chosen framework
          #endif
 
          if constexpr (ft == EMyFrameworkType::edit)          set(Find<fw_Edit>(strField), boSet);
@@ -310,7 +309,7 @@ class TMyForm {
          #elif defined BUILD_WITH_QT
            auto set = [](auto fld, bool boSet) { fld->setVisible(boSet); };
          #else
-            #error fehlende Implementierung von Visible() in diesem Framework
+            #error Missing implementation for function TMyForm::Visible() for the chosen framework
          #endif
          if constexpr      (ft == EMyFrameworkType::edit)     set(Find<fw_Edit>(strField), boVisible);
          else if constexpr (ft == EMyFrameworkType::memo)     set(Find<fw_Memo>(strField), boVisible);
@@ -330,7 +329,7 @@ class TMyForm {
          #elif defined BUILD_WITH_QT
            auto set = [](auto fld, bool boSet) { fld->setEnabled(boSet); };
          #else
-           #error fehlende Implementierung von Enable() in diesem Framework
+           #error Missing implementation for function TMyForm::Enable() for the chosen framework
          #endif
          if constexpr      (ft == EMyFrameworkType::edit) 	  set(Find<fw_Edit>(strField), boEnabled);
          else if constexpr (ft == EMyFrameworkType::memo)     set(Find<fw_Memo>(strField), boEnabled);
@@ -469,7 +468,7 @@ class TMyForm {
           auto get_len = [](auto fld) -> int { return fld->text().length(); };
           auto get_txt = [](auto fld) -> fw_String { return fld->text(); };
           #else
-            #error Fehlende Implementierung für GetEdit in diesem Framework
+            #error Missing implementation for function TMyForm::GetEdit() for the chosen framework
           #endif
           auto field = Find<fw_Edit>(strField);
           if constexpr (is_optional<ty>::value) {
@@ -494,7 +493,7 @@ class TMyForm {
            field->clear();
            std::for_each(values.cbegin(), values.cend(), [field](std::string const& value) { field->addItem(QString::fromStdString(value)); });
          #else
-           #error Fehlende Implementierung für InitListBox für dieses Framework
+           #error Missing implementation for function TMyForm::InitListBox() for the chosen framework
          #endif
          }
 
@@ -505,7 +504,7 @@ class TMyForm {
          #elif defined BUILD_WITH_QT
            field->addItem(QString::fromStdString(value));
          #else
-           #error Fehlende Implementierung für AddListBox für dieses Framework
+           #error Missing implementation for function TMyForm::AddListBox() for the chosen framework
          #endif
          }
 
@@ -516,7 +515,7 @@ class TMyForm {
          #elif defined BUILD_WITH_QT
            if(field->count() > 0) field->setCurrentRow(0);
          #else
-           #error Fehlende Implementierung für SetFirstListbox für dieses Framework
+           #error Missing implementation for function TMyForm::SetFirstListBox() for the chosen framework
          #endif
          }
 
@@ -541,7 +540,7 @@ class TMyForm {
               }
            if (i < field->count()) field->setCurrentRow(0);
          #else
-           #error Fehlende Implementierung für SetListbox für dieses Framework
+           #error Missing implementation for function TMyForm::SetListBox() for the chosen framework
          #endif
          }
 
@@ -553,7 +552,7 @@ class TMyForm {
          #elif defined BUILD_WITH_QT
             return field->currentItem()->text().toStdString();
          #else
-           #error Fehlende Implementierung für SetListbox für dieses Framework
+           #error Missing implementation for function TMyForm::GetListBox() for the chosen framework
          #endif
          }
 
@@ -564,7 +563,7 @@ class TMyForm {
          #elif defined BUILD_WITH_QT
             if (field->count() > 0) field->setCurrentIndex(0);
          #else
-           #error Fehlende Implementierung für SetFirstListbox für dieses Framework
+           #error Missing implementation for function TMyForm::SetFirstComboBox() for the chosen framework
          #endif
          }
 
@@ -596,7 +595,7 @@ class TMyForm {
          #elif defined BUILD_WITH_QT
            chosen = std::make_optional(box->checkState() == Qt::Checked); // partially possible, attention
          #else
-            #error todo, define for new framework
+            #error Missing implementation for function TMyForm::GetCheckBox() for the chosen framework
          #endif
 
          if constexpr (is_optional<ty>::value) {
@@ -648,7 +647,7 @@ class TMyForm {
               });
            field->addItems(list);
          #else
-           #error Fehlende Implementierung für InitListBox für dieses Framework
+           #error Missing implementation for function TMyForm::InitCombobox() for the chosen framework
          #endif
          }
 
@@ -703,7 +702,7 @@ class TMyForm {
             auto get_text = [&field]() { return field->currentText(); };
             static constexpr auto convert_text = [](fw_String const& val) -> std::string { return val.toStdString(); };
          #else
-           #error
+           #error Missing implementation for function TMyForm::GetComboBox() for the chosen framework
          #endif
 
          if constexpr (is_optional<ty>::value) {
@@ -789,26 +788,6 @@ class TMyForm {
 
 
       //-----
-      template <EMyFrameworkType ft, typename ty>
-      ty Get_Value_in_list(std::string const& strField, size_t index) {
-         #if defined BUILD_WITH_VCL || defined BUILD_WITH_FMX
-            auto GetFunc = [](auto* field, size_t index) { return field->Items->Strings[index]; };
-         #elif defined BUILD_WITH_QT
-            auto GetFunc = [](auto* field, size_t index) { return field->item(index)->text(); };
-         #else
-            #error Fehlende Implementierung für Count_in_list für dieses Framework
-         #endif
-         // GetText<ty>(
-         ty ret;
-         if constexpr (ft == EMyFrameworkType::combobox) {
-            ret = GetText<ty>(GetFunc(Find<fw_Combobox>(strField), index));
-            }
-         if constexpr (ft == EMyFrameworkType::listbox) {
-            ret = GetText<ty>(GetFunc(Find<fw_Listbox>(strField), index));
-            }
-         else static_assert_no_match();
-         return ret;
-         }
 
       template <EMyFrameworkType ft>
       size_t Delete_Value_in_list(std::string const& strField, size_t index) {
@@ -823,10 +802,10 @@ class TMyForm {
             auto del_func2 = [](auto* field, size_t index) { delete field->takeItem(index); };
             auto set_index = [](auto* field, size_t index) { field->setCurrentIndex(index); };
          #else
-            #error Fehlende Implementierung für Count_in_list für dieses Framework
+            #error Missing implementation for function TMyForm::Delete_Value_in_list() for the chosen framework
          #endif
-         // Ablauf fehlt, aktuellen Index und Count prüfen 
-         size_t ret;
+         // Attention, todo !!! no implementation for this function
+         size_t ret = 0u;
          if constexpr (ft == EMyFrameworkType::combobox) {
             auto field = Find<fw_Combobox>(strField);
             del_func1(field, index);
@@ -838,29 +817,6 @@ class TMyForm {
          else static_assert_no_match();
          return ret;
       }
-
-
-      template <EMyFrameworkType ft>
-      size_t Count_in_list(std::string const& strField) {
-         #if defined BUILD_WITH_VCL || defined BUILD_WITH_FMX
-            auto CountFunc = [](auto* field) { return field->Items->Count; };
-         #elif defined BUILD_WITH_QT
-            auto CountFunc = [](auto* field) { return field->count(); };
-         #else
-            #error Fehlende Implementierung für Count_in_list für dieses Framework
-         #endif
-
-         size_t ret;
-
-         if constexpr (ft == EMyFrameworkType::combobox) {
-            ret = CountFunc(Find<fw_Combobox>(strField));
-            }
-         if constexpr (ft == EMyFrameworkType::listbox) {
-            ret = CountFunc(Find<fw_Listbox>(strField));
-            }
-         else static_assert_no_match();
-         return ret;
-         }
 
 
       //------------------------------------------------------------------------
@@ -876,7 +832,7 @@ class TMyForm {
          #elif defined BUILD_WITH_QT
            auto call = [](fw_Form* form) {
               QDialog* dlg = dynamic_cast<QDialog*>(form);
-              if (dlg == nullptr) throw std::runtime_error("keine Umwandlung für QDialog möglich");
+              if (dlg == nullptr) throw std::runtime_error("no cast to QDialog possible");
               return dlg->exec(); 
               };
            static const std::map<int, EMyRetResults> RetVals = {
@@ -886,7 +842,7 @@ class TMyForm {
                { QDialog::Rejected,     EMyRetResults::cancel }
               };
          #else
-           #error fehlende Implementierung für ShowModal()
+           #error Missing implementation for function TMyForm::ShowModal() for the chosen framework
          #endif
 
          if(auto myret = RetVals.find(call(Form())); myret != RetVals.end()) {
@@ -898,136 +854,246 @@ class TMyForm {
          }
 
 
-      // Erweiterungen für Tabellen
+      // Erweiterungen für Tabellen, schon vorbereitet für Listbox und Combobox
       //------------------------------------------------------------------------------------------------------------------------
-      size_t GetTableRows(std::string const& strField) {
-          #if defined BUILD_WITH_VCL
-          auto get_row_cnt = [](auto fld) -> int { return fld->Items->Count; };
-		  #elif defined BUILD_WITH_FMX
-		  auto get_row_cnt = [](auto fld) -> int { return fld->RowCount; };
-          #elif defined BUILD_WITH_QT
-          auto get_row_cnt = [](auto fld) -> int { return fld->rowCount(); };
-          #else
-            #error Fehlende Implementierung für GetTableRows in diesem Framework
-          #endif
-	      auto field = Find<fw_Table>(strField);
-		  auto iCnt = get_row_cnt(field);
-		  if(iCnt < 0) throw std::runtime_error("value is negative for TableRows");
-		  return static_cast<size_t>(iCnt);
-	      }
+      template <typename fw>
+      size_t get_row_cnt(fw* fld) {
+         static_assert(std::is_same<fw_Table, fw>::value || 
+                       std::is_same<fw_Listbox, fw>::value || 
+                       std::is_same<fw_Combobox, fw>::value, "invalid type for get_row_cnt");
+         // negative Werte ?
+         #if defined BUILD_WITH_VCL
+            return fld->Items->Count;
+         #elif defined BUILD_WITH_FMX
+            if constexpr (std::is_same<fw_Table, fw>::value) return fld->RowCount;
+            else return fld->Items->Count;
+         #elif defined BUILD_WITH_QT
+            if constexpr (std::is_same<fw_Table, fw>::value) return fld->rowCount();
+            else return fld->count();
+         #else
+            #error Missing implementation for function TMyForm::get_row_cnt() for the chosen framework
+         #endif
+         }
+
+
+      template <typename fw>
+      size_t get_col_cnt(fw* fld) {
+         static_assert(std::is_same<fw_Table, fw>::value || 
+                       std::is_same<fw_Listbox, fw>::value || 
+                       std::is_same<fw_Combobox, fw>::value, "invalid type for get_col_cnt");
+
+         #if defined BUILD_WITH_VCL
+            if constexpr (std::is_same<fw_Table, fw>::value) return fld->Columns->Count;
+            else return 1u;
+		   #elif defined BUILD_WITH_FMX
+		      if constexpr (std::is_same<fw_Table, fw>::value) return fld->ColumnCount;
+            else return 1u;
+         #elif defined BUILD_WITH_QT
+            if constexpr (std::is_same<fw_Table, fw>::value) return fld->columnCount(); 
+            else return 1u; // prüfen, eventuell mehrere Spalten möglich
+         #else
+            #error Missing implementation for function TMyForm::get_col_cnt() for the chosen framework
+         #endif
+         }
+
+
+      template <typename fw>
+      std::vector<size_t> get_selected_rows(fw* fld) {
+         static_assert(std::is_same<fw_Table, fw>::value || 
+                       std::is_same<fw_Listbox, fw>::value || 
+                       std::is_same<fw_Combobox, fw>::value, "invalid type for get_selected_rows");
+
+         std::vector<size_t> selected_rows;         
+         #if defined BUILD_WITH_VCL
+            if constexpr (std::is_same<fw_Table, fw>::value) {
+               TItemStates selected = TItemStates() << isSelected;
+               for (TListItem* item = fld->Selected; item; item = fld->GetNextItem(item, sdAll, selected)) {
+                  selected_rows.push_back(static_cast<size_t>(item->Index));
+                  }
+               }
+            else if constexpr (std::is_same<fw_Listbox, fw>::value) {
+               for(size_t i = 0u; i < static_cast<size_t>(fld->Items->Count); ++i)
+                  if(fld->Selected[i]) selected_rows.push_back(i);
+               }
+            else if constexpr (std::is_same<fw_Combobox, fw>::value) {
+               if(fld->ItemIndex >= 0) selected_rows.push_back(static_cast<size_t>(fld->ItemIndex));
+               }
+            else static_assert_no_match();
+         #elif defined BUILD_WITH_FMX
+            // was ist, wenn keine Zeile gewählt, -1 ?   für FMX::TStringGrid kein Multiselect
+            if constexpr (std::is_same<fw_Table, fw>::value) 
+               selected_rows.push_back(static_cast<size_t>(fld->Selected));
+            else if constexpr (std::is_same<fw_Listbox, fw>::value) {
+               for(size_t i = 0u; i < static_cast<size_t>(fld->Items->Count); ++i)
+                  if(fld->ListItems[i]->IsSelected) selected_rows.push_back(i);
+               }
+            else if constexpr (std::is_same<fw_Combobox, fw>::value)
+               if(fld->ItemIndex >= 0) selected_rows.push_back(static_cast<size_t>(fld->ItemIndex));
+            else static_assert_no_match();
+
+         #elif defined BUILD_WITH_QT
+            if constexpr (std::is_same<fw_Table, fw>::value) {
+               QItemSelectionModel* selectModel = fld->selectionModel();
+               foreach(QModelIndex index, selectModel->selectedRows()) 
+                   selected_rows.push_back(static_cast<size_t>(index.row()));
+               }
+            else if constexpr (std::is_same<fw_Listbox, fw>::value) {
+               QItemSelectionModel* selectModel = fld->selectionModel();
+               foreach(QModelIndex index, selectModel->selectedRows())
+                  selected_rows.push_back(static_cast<size_t>(index.row()));
+               }
+            else if constexpr (std::is_same<fw_Combobox, fw>::value) {
+               if(fld->currentIndex >= 0) selected_rows.push_back(static_cast<size_t>(fld->currentIndex));
+               }
+            else static_assert_no_match();
+         #else
+            #error Missing implementation for function TMyForm::get_selected_rows() for the chosen framework
+         #endif
+         return selected_rows;
+         }
+
+      /// method to get the text of a specific cell or row
+      template <typename fw>
+      auto get_item_text(fw* fld, size_t iRow, size_t iCol = 0u) {
+         static_assert(std::is_same<fw_Table, fw>::value ||
+                       std::is_same<fw_Listbox, fw>::value ||
+                       std::is_same<fw_Combobox, fw>::value, "invalid type for get_item_text");
+
+		   if(iRow > get_row_cnt(fld) - 1) {
+			   std::ostringstream os;
+            os << "wrong value for parameter \"iRow\" in function get_item_text, "
+               << "iRow = " << iRow 
+               << " (max is " << get_row_cnt(fld) - 1 << ")";
+ 			   throw std::runtime_error(os.str());
+  	         }
+
+		   if(iCol > get_col_cnt(fld) -1) {
+			   std::ostringstream os;
+            os << "wrong value for parameter \"iCol\" in function get_item_text, "
+               << "iCol = " << iCol 
+               << " (max is " << get_col_cnt(fld) - 1 << ")";
+			   throw std::runtime_error(os.str());
+  	         }
+
+
+         #if defined BUILD_WITH_VCL
+            if constexpr (std::is_same<fw_Table, fw>::value) {
+               TListItem* item = fld->Items->Item[iRow];
+               if (iCol == 0) return item->Caption;
+               else return item->SubItems->Strings[iCol - 1];
+               }
+            else return fld->Items->Strings[iRow]; 
+ 
+         #elif defined BUILD_WITH_FMX
+            if constexpr (std::is_same<fw_Table, fw>::value) return fld->Cells[iCol][iRow];
+            else return fld->Items->Strings[iRow];
+         #elif defined BUILD_WITH_QT
+            if constexpr (std::is_same<fw_Table, fw>::value) return fld->item(iRow, iCol)->text();
+            else return fld->item(iRow)->text();
+         #else
+            #error Missing implementation for function TMyForm::get_item_text() for the chosen framework
+         #endif
+      }
+
+      size_t get_text_length(fw_String const& text) {
+         #if defined BUILD_WITH_VCL || defined BUILD_WITH_FMX
+            return text.Length();
+         #elif defined BUILD_WITH_QT
+            return text.length();
+         #else
+            #error Missing implementation for function TMyForm::get_text_length() for the chosen framework
+         #endif
+         }
+
+      template <EMyFrameworkType ft>  
+      size_t GetRowsCount(std::string const& strField) {
+         if constexpr (ft == EMyFrameworkType::listview)
+            return get_row_cnt(Find<fw_Table>(strField));
+         else if constexpr (ft == EMyFrameworkType::listbox)
+            return get_row_cnt(Find<fw_Listbox>(strField));
+         else if constexpr (ft == EMyFrameworkType::combobox)
+            return get_row_cnt(Find<fw_Combobox>(strField));
+         else static_assert_no_match();
+         }
+
+
 // ---  
-	  size_t GetTableColumns(std::string const& strField) { 
-          #if defined BUILD_WITH_VCL
-          auto get_col_cnt = [](auto fld) -> int { return fld->Columns->Count; };
-		  #elif defined BUILD_WITH_FMX
-		  auto get_col_cnt = [](auto fld) -> int { return fld->ColumnCount; };
-          #elif defined BUILD_WITH_QT
-          auto get_col_cnt = [](auto fld) -> int { return fld->columnCount(); };
-          #else
-            #error Fehlende Implementierung für GetTableColumns in diesem Framework
-          #endif
-	      auto field = Find<fw_Table>(strField);
-		  auto iCnt = get_col_cnt(field);
-		  if(iCnt < 0) throw std::runtime_error("value is negative for TableCols");
-		  return static_cast<size_t>(iCnt);
-	      }
+      template <EMyFrameworkType ft>
+      size_t GetColumnsCount(std::string const& strField) {
+         if constexpr (ft == EMyFrameworkType::listview)
+            return get_col_cnt(Find<fw_Table>(strField));
+         else if constexpr (ft == EMyFrameworkType::listbox)
+            return get_col_cnt(Find<fw_Listbox>(strField));
+         else if constexpr (ft == EMyFrameworkType::combobox)
+            return get_col_cnt(Find<fw_Combobox>(strField));
+         else static_assert_no_match();
+		   }
 
-// ---
+// ---                              
+      template <EMyFrameworkType ft>
+      std::vector<size_t> GetAllRows(std::string const& strField) {
+          size_t cnt;
+          if constexpr (ft == EMyFrameworkType::listview)
+             cnt = get_row_cnt(Find<fw_Table>(strField));
+          else if constexpr (ft == EMyFrameworkType::listbox)
+             cnt = get_row_cnt(Find<fw_Listbox>(strField)); 
+          else if constexpr (ft == EMyFrameworkType::combobox)
+             cnt = get_row_cnt(Find<fw_Combobox>(strField)); 
+          else static_assert_no_match();
 
-      std::vector<size_t> GetAllTableRows(std::string const& strField) {
-          std::vector<size_t> rows(GetTableRows(strField));
-	      std::generate(rows.begin(), rows.end(), [i = 0]() mutable { return i++; });
+          std::vector<size_t> rows(cnt);
+	       std::generate(rows.begin(), rows.end(), [i = 0]() mutable { return i++; });
           return rows;
           }
 
-      std::vector<size_t> GetSelectedTableRows(std::string const& strField) {
-          std::vector<size_t> selected_rows;
-		  auto field = Find<fw_Table>(strField);
-		  
-          #if defined BUILD_WITH_VCL
-             TItemStates selected =TItemStates() << isSelected;
-             for(TListItem* item = field->Selected; item; item = field->GetNextItem(item, sdAll, selected)) {
-                selected_rows.push_back(static_cast<size_t>(item->Index));
-                }
-          #elif defined BUILD_WITH_FMX
-		     // was ist, wenn keine Zeile gewählt, -1 ?
-             selected_rows.push_back(static_cast<size_t>(field->Selected));		  
-          #elif defined BUILD_WITH_QT
-             QItemSelectionModel* selectModel = field->selectionModel();
-             foreach(QModelIndex index, selectModel->selectedRows()) selected_rows.push_back(static_cast<size_t>(index.row());			
-          #else
-            #error Fehlende Implementierung für GetSelectedTableRows in diesem Framework
-          #endif
+// ---
+      template <EMyFrameworkType ft>
+      std::vector<size_t> GetSelectedRows(std::string const& strField) {
+         if constexpr (ft == EMyFrameworkType::listview)
+            return get_selected_rows(Find<fw_Table>(strField));
+         else if constexpr (ft == EMyFrameworkType::listbox)
+            return get_selected_rows(Find<fw_Listbox>(strField));  
+         else if constexpr (ft == EMyFrameworkType::combobox)
+            return get_selected_rows(Find<fw_Combobox>(strField));  
+         else static_assert_no_match();
+         }
 
-          return selected_rows;
-	     }		  
 	  
 // ---	  
+      // todo !!!!! SetValue implementieren, dazu SetFunction trennen und eine SetText Methode ergänzen
+      template <EMyFrameworkType ft, typename ty>
+	   std::optional<ty> GetValue(std::string const& strField, size_t iRow, size_t iCol = 0u) {
+         try {
+	         fw_String item;
+            if constexpr (ft == EMyFrameworkType::listview)
+               item = get_item_text(Find<fw_Table>(strField), iRow, iCol);
+            else if constexpr (ft == EMyFrameworkType::listbox)
+		         item = get_item_text(Find<fw_Listbox>(strField), iRow, iCol);
+            else if constexpr (ft == EMyFrameworkType::combobox)
+               item = get_item_text(Find<fw_Combobox>(strField), iRow, iCol);
+            else static_assert_no_match();
 
-      template <typename ty>
-	  std::optional<ty> GetTableValue(std::string const& strField, int iRow, int iCol) {
-          #if defined BUILD_WITH_VCL
-          auto get_col_cnt = [](auto fld) -> int { return fld->Columns->Count; };
-		  auto get_row_cnt = [](auto fld) -> int { return fld->Items->Count; };
-		  
-		  auto get_item = [](auto fld, int iRow, int iCol) { 
-		     TListItem* item = fld->Items->Item[iRow];
-             if(iCol == 0) {
-                return item->Caption;
-                }
-             else {
-                return item->SubItems->Strings[iCol - 1]; 
-                }
-             };
-	      auto get_length = [](fw_String const& val) { return val.Length(); };		 
-		  #elif defined BUILD_WITH_FMX
-		  auto get_col_cnt = [](auto fld) -> int { return fld->ColumnCount; };
-		  auto get_row_cnt = [](auto fld) -> int { return fld->RowCount; };
-          auto get_item    = [](auto fld, int iRow, int iCol) { return fld->Cells[iCol][iRow]; }; 
-          auto get_length = [](fw_String const& val) { return val.Length(); };		 
-		  #elif defined BUILD_WITH_QT
-          auto get_col_cnt = [](auto fld) -> int { return fld->columnCount(); };
-		  auto get_row_cnt = [](auto fld) -> int { return fld->rowCount(); };
-		  auto get_item    = [](auto fld, int iRow, int iCol) { return fld->item(iRow, iCol)->text(); };
-		  auto get_length = [](fw_String const& val) { return val.length(); };
-          #else
-            #error Fehlende Implementierung für GetTableValues in diesem Framework
-          #endif
-	      auto field = Find<fw_Table>(strField);
-		  
-		  if(iRow < 0 || iRow > get_row_cnt(field) - 1) {
-			std::ostringstream os;
-			os << "wrong paramter for row in GetTableValue for formular \"" << FormName()
-		       << "\" field \"" << strField << "\", row is " << iRow << " (max is " << get_row_cnt(field) - 1
-               << ").";			   
-			throw std::runtime_error(os.str());
-  	        }
-
-		  if(iCol < 0 || iCol > get_col_cnt(field) -1) {
-			std::ostringstream os;
-			os << "wrong paramter for col in GetTableValue for formular \"" << FormName()
-		       << "\" field \"" << strField << "\", col is " << iCol << " (max is " << get_col_cnt(field) - 1
-               << ").";			   
-			throw std::runtime_error(os.str());
-  	        }
-			
-		auto item = get_item(field, iRow, iCol);	
-		if(get_length(item) == 0) return std::nullopt;
-		else {
-		   return std::make_optional(GetText<ty>(item));	
-		   }
-	  };
+            if(get_text_length(item) == 0) return std::nullopt;
+		      else return std::make_optional(GetText<ty>(item));	
+            }
+         catch(std::exception& ex) {
+            std::ostringstream os;
+            os << "error in formular \"" << FormName() << "\" field \"" << strField << "\"" << std::endl
+               << ex.what();
+            throw std::runtime_error(os.str());
+            }
+	      }
 		
 
 
    private:
       fw_Form* Form(void) {
-         if(form == nullptr) throw std::runtime_error("Critical error, member form in TMyForm is nullptr");
+         if(form == nullptr) throw std::runtime_error("Critical error, member form in this instance of TMyForm is a nullptr");
          return form;
          }
 
       fw_Form const* Form(void) const {
-         if(form == nullptr) throw std::runtime_error("Critical error, member form in TMyForm is nullptr");
+         if(form == nullptr) throw std::runtime_error("Critical error, member form in this instance of TMyForm is a nullptr");
          return form;
          }
 
@@ -1039,7 +1105,7 @@ class TMyForm {
          #elif defined BUILD_WITH_QT
            auto* comp = Form()->findChild<QObject* >(QString::fromStdString(strField));
          #else
-           #error keine Umsetzung von Find für dieses Framework
+           #error Missing implementation for function TMyForm::Find() for the chosen framework
          #endif
          if(!comp) {
             std::ostringstream os;
@@ -1071,7 +1137,7 @@ class TMyForm {
             auto convert_string  = [](std::string const& strValue) { return QString::fromStdString(strValue); };
             auto convert_wstring = [](std::wstring const& strValue) { return QString::fromStdWString(strValue); };
          #else
-           #error keine Definition von SetFunction im gewählten Framework
+           #error Missing implementation for function TMyForm::SetFunction() for the chosen framework
          #endif
          if constexpr (is_optional<ty>::value) {
             using used_type  = typename std::remove_reference<typename std::remove_cv<decltype(*value)>::type>::type;
@@ -1155,7 +1221,7 @@ class TMyForm {
             #elif defined BUILD_WITH_QT
             std::string strValue = value.toStdString();
             #else
-              #error fehlende Implementierung for GetText in diesem Framwork
+              #error Missing implementation for function TMyForm::GetText() for the chosen framework
             #endif
             if constexpr (std::is_integral<ty>::value && !std::is_same<ty, bool>::value) return TMyTools::string_to_integral_fmt<ty>(strValue);
             else if constexpr (std::is_floating_point<ty>::value)                        return TMyTools::string_to_double_fmt(strValue);
@@ -1195,7 +1261,7 @@ class TMyForm {
               field->setCurrentText(strSeek);
               };
          #else
-           #error Fehlende Implementierung für interne SetCombobox Funktion in diesem Framework
+           #error Missing implementation for function TMyForm::SetCombobox() for the chosen framework
          #endif
          if constexpr (is_optional<ty>::value) {
             if (!value) {
@@ -1279,21 +1345,6 @@ class TMyForm {
 
 /*
 
-Table  (erweitern für Listbox + Combobox)
-
-template <typename ft>
-std::vector<size_t> GetAll(std::string const& strField);
-std::vector<size_t> GetSelected(std::string const& strField);
-
-int GetTableRowCount(std::string const& strField);
-int GetTableColCount(std::string const& strField);
-
-template <typename ty>
-ty GetTableItem(std::string const& strField, int iRow, int iCol); // 0 - n-1
-
-template <typename ty>
-ty GetListItem(std::string const& strField, int iRow); // für listbox und combobox
-
 */
 
 template <EMyFrameworkType ft, typename ty>
@@ -1306,8 +1357,8 @@ struct my_formlist_iterator {
 
    my_formlist_iterator() = default;
    
-   my_formlist_iterator(TMyForm* frm, std::string const& fld) : 
-      form(frm), strField(fld) {
+   my_formlist_iterator(TMyForm* frm, std::string const& fld, size_t c = 0u) : 
+      form(frm), strField(fld), col(c) {
       ++* this;
    }
 
@@ -1316,26 +1367,40 @@ struct my_formlist_iterator {
       form     = para.first;
 	  strField = para.second;
       start_pos = 0;
+      col = 0u;
       return *this;
       }
- 
+
+   my_formlist_iterator& operator = (std::tuple<TMyForm*, std::string, size_t> para) {
+      form      = std::get<0>(para);
+      strField  = std::get<1>(para);
+      col       = std::get<2>(para);
+      start_pos = 0;
+      return *this;
+   }
+
+
    my_formlist_iterator& operator = (my_formlist_iterator const& ref) {
       form      = ref.form;
       strField  = ref.strField;
       start_pos = ref.start_pos;
+      col       = ref.col;
       return *this;
       }
 
    value_type operator*() const { 
-      if (!form) throw std::runtime_error("unexpected error in my_formlist_iterator, form is null"); 
-      return form->Get_Value_in_list<ft, ty>(strField, start_pos - 1); 
+      if (!form) throw std::runtime_error("unexpected error in my_formlist_iterator, form is null");
+      auto val = form->GetValue<ft, ty>(strField, start_pos - 1, col);
+      if (!val) throw std::runtime_error("the value in my_formlist_itaror is empty");
+      return *val; 
       }
+
    //pointer operator->() const { return &theLine; }
 
  
    my_formlist_iterator& operator++() {
       if (form) {
-         if(start_pos < form->Count_in_list<ft>(strField)) start_pos++;
+         if(start_pos < form->GetRowsCount<ft>(strField)) start_pos++;
          else {
             form  = nullptr;
 			   strField = "";
@@ -1367,26 +1432,27 @@ private:
    TMyForm *form = nullptr;
    std::string strField = "";
    size_t start_pos = 0;
-
+   size_t col = 0;
 };
 
 
 template <EMyFrameworkType ft, typename ty>
 struct my_formlist {
    using const_iterator = my_formlist_iterator<ft, ty>;
-   my_formlist(TMyForm* frm, std::string const& fld) : form(frm), strField(fld) { }
-   my_formlist(my_formlist<ft, ty> const& ref) : form(ref.form), strField(ref.strField) { }
-   my_formlist_iterator<ft, ty> begin() { return my_formlist_iterator<ft, ty>(form, strField); }
+   my_formlist(TMyForm* frm, std::string const& fld, size_t c = 0u) : form(frm), strField(fld), col(c) { }
+   my_formlist(my_formlist<ft, ty> const& ref) : form(ref.form), strField(ref.strField), col(ref.col) { }
+   my_formlist_iterator<ft, ty> begin() { return my_formlist_iterator<ft, ty>(form, strField, col); }
    my_formlist_iterator<ft, ty> end() { return my_formlist_iterator<ft, ty>(); }
-   my_formlist_iterator<ft, ty> cbegin() const { return my_formlist_iterator<ft, ty>(form, strField); }
+   my_formlist_iterator<ft, ty> cbegin() const { return my_formlist_iterator<ft, ty>(form, strField, col); }
    my_formlist_iterator<ft, ty> cend() const { return my_formlist_iterator<ft, ty>(); }
    size_t size(void) const {
       if(!form) return 0u;	   
-      return form->Count_in_list<ft>(strField); 
+      return form->GetRowsCount<ft>(strField); 
 	  }
 
 private:
    TMyForm *form;
+   size_t col = 0u;
    std::string strField;
 };
 
