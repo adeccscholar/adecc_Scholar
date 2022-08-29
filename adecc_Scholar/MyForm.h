@@ -1343,10 +1343,6 @@ class TMyForm {
 
    };
 
-/*
-
-*/
-
 template <EMyFrameworkType ft, typename ty>
 struct my_formlist_iterator {
    using iterator_category = std::input_iterator_tag;
