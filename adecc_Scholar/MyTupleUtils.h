@@ -4,6 +4,7 @@
 #include <string>
 #include <tuple>
 #include <chrono>
+#include <thread>
 
 template <typename char_type>
 struct myTupleHlp {
