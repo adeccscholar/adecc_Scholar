@@ -952,6 +952,55 @@ class TMyForm {
          return selected_rows;
          }
 
+
+
+      /// method to get the text of a specific cell or row
+      template <typename fw>
+      auto set_item_text(fw_String const &text, fw* fld, size_t iRow, size_t iCol = 0u) {
+         static_assert(std::is_same<fw_Table, fw>::value ||
+            std::is_same<fw_Listbox, fw>::value ||
+            std::is_same<fw_Combobox, fw>::value, "invalid type for set_item_text");
+
+         if (iRow > get_row_cnt(fld) - 1) {
+            std::ostringstream os;
+            os << "wrong value for parameter \"iRow\" in function set_item_text, "
+               << "iRow = " << iRow
+               << " (max is " << get_row_cnt(fld) - 1 << ")";
+            throw std::runtime_error(os.str());
+         }
+
+         if (iCol > get_col_cnt(fld) - 1) {
+            std::ostringstream os;
+            os << "wrong value for parameter \"iCol\" in function set_item_text, "
+               << "iCol = " << iCol
+               << " (max is " << get_col_cnt(fld) - 1 << ")";
+            throw std::runtime_error(os.str());
+         }
+
+
+         #if defined BUILD_WITH_VCL
+         if constexpr (std::is_same<fw_Table, fw>::value) {
+            TListItem* item = fld->Items->Item[iRow];
+            if (iCol == 0) item->Caption = text;
+            else item->SubItems->Strings[iCol - 1] = text;
+         }
+         else return fld->Items->Strings[iRow] = text;
+
+         #elif defined BUILD_WITH_FMX
+         if constexpr (std::is_same<fw_Table, fw>::value) fld->Cells[iCol][iRow] = text;
+         else fld->Items->Strings[iRow] = text;
+         #elif defined BUILD_WITH_QT
+         if constexpr (std::is_same<fw_Table, fw>::value) return fld->item(iRow, iCol)->setText(text);
+         else if constexpr (std::is_same<fw_Listbox, fw>::value) return fld->item(iRow)->setText(text);
+         else return fld->setItemText(iRow, text);
+         #else
+            #error Missing implementation for function TMyForm::get_item_text() for the chosen framework
+         #endif
+         }
+
+
+
+
       /// method to get the text of a specific cell or row
       template <typename fw>
       auto get_item_text(fw* fld, size_t iRow, size_t iCol = 0u) {
@@ -989,7 +1038,8 @@ class TMyForm {
             else return fld->Items->Strings[iRow];
          #elif defined BUILD_WITH_QT
             if constexpr (std::is_same<fw_Table, fw>::value) return fld->item(iRow, iCol)->text();
-            else return fld->item(iRow)->text();
+            else if constexpr (std::is_same<fw_Listbox, fw>::value) return fld->item(iRow)->text();
+            else return fld->itemText(iRow);
          #else
             #error Missing implementation for function TMyForm::get_item_text() for the chosen framework
          #endif
@@ -1059,8 +1109,28 @@ class TMyForm {
          }
 
 	  
-// ---	  
-      // todo !!!!! SetValue implementieren, dazu SetFunction trennen und eine SetText Methode ergänzen
+// ---	
+      template <EMyFrameworkType ft, typename ty>
+      void SetValue(std::string const& strField, size_t iRow, size_t iCol, ty const& value, int iLen = -1, int iScale = -1) {
+         try {
+            if constexpr (ft == EMyFrameworkType::listview)
+               set_item_text(SetText<ty>(value, iLen, iScale), Find<fw_Table>(strField), iRow, iCol);
+            else if constexpr (ft == EMyFrameworkType::listbox)
+               set_item_text(SetText<ty>(value, iLen, iScale), Find<fw_Listbox>(strField), iRow, iCol);
+            else if constexpr (ft == EMyFrameworkType::combobox)
+               set_item_text(SetText<ty>(value, iLen, iScale), Find<fw_Combobox>(strField), iRow, iCol);
+            else static_assert_no_match();
+         }
+         catch (std::exception& ex) {
+            std::ostringstream os;
+            os << "error in formular \"" << FormName() << "\" field \"" << strField << "\"" << std::endl
+               << ex.what();
+            throw std::runtime_error(os.str());
+         }
+      }
+
+
+      // 
       template <EMyFrameworkType ft, typename ty>
 	   std::optional<ty> GetValue(std::string const& strField, size_t iRow, size_t iCol = 0u) {
          try {
@@ -1130,79 +1200,83 @@ class TMyForm {
       // -----------------------------------------------------------------------
       template <typename ty>
       void SetFunction(std::function<void (fw_String const& val)> func, ty const& value, int iLen = -1, int iScale = -1) {
+         func(SetText<ty>(value, iLen, iScale));
+         return;
+         }
+
+
+      template <typename ty>
+      fw_String SetText(ty const& value, int iLen = -1, int iScale = -1) {
+         fw_String retVal("");
          #if defined BUILD_WITH_VCL || defined BUILD_WITH_FMX
-            auto convert_string  = [](std::string const& strValue) { return fw_String(strValue.c_str());  };
+            auto convert_string = [](std::string const& strValue) { return fw_String(strValue.c_str());  };
             auto convert_wstring = [](std::wstring const& strValue) { return fw_String(strValue.c_str()); };
          #elif defined BUILD_WITH_QT
-            auto convert_string  = [](std::string const& strValue) { return QString::fromStdString(strValue); };
+            auto convert_string = [](std::string const& strValue) { return QString::fromStdString(strValue); };
             auto convert_wstring = [](std::wstring const& strValue) { return QString::fromStdWString(strValue); };
          #else
-           #error Missing implementation for function TMyForm::SetFunction() for the chosen framework
+            #error Missing implementation for function TMyForm::SetFunction() for the chosen framework
          #endif
+
          if constexpr (is_optional<ty>::value) {
-            using used_type  = typename std::remove_reference<typename std::remove_cv<decltype(*value)>::type>::type;
-            if(!value.has_value())  func("");
+            using used_type = typename std::remove_reference<typename std::remove_cv<decltype(*value)>::type>::type;
+            if (!value.has_value())  retVal = "";
             else {
-               if constexpr      (is_cpp_narrow_string<used_type>::value)   func(convert_string(*value));
-               if constexpr      (is_cpp_wide_string<used_type>::value)     func(convert_wstring(*value));
-               #if defined BUILD_WITH_VCL || defined BUILD_WITH_FMX
-               else if constexpr (is_delphi_string<used_type>::value)       func(*value);
-               #elif defined BUILD_WITH_QT
-               else if constexpr (is_qt_string<used_type>::value)           func(*value);
-               #endif
-               else if constexpr (is_wchar_param<used_type>::value)         func(*value);
-               else if constexpr (is_char_param<used_type>::value)          func(*value);
+               if constexpr (is_cpp_narrow_string<used_type>::value)          retVal = convert_string(*value);
+               else if constexpr (is_cpp_wide_string<used_type>::value)       retVal = convert_wstring(*value);
+               else if constexpr (is_delphi_string<used_type>::value)         retVal = *value;
+               else if constexpr (is_qt_string<used_type>::value)             retVal = *value;
+               else if constexpr (is_wchar_param<used_type>::value)           retVal = *value;
+               else if constexpr (is_char_param<used_type>::value)            retVal = *value;
                else if constexpr (std::is_integral<used_type>::value && !std::is_same<used_type, bool>::value) {
-                  func(convert_string(TMyTools::integral_to_string_fmt<used_type>(*value)));
+                  retVal = convert_string(TMyTools::integral_to_string_fmt<used_type>(*value));
                   }
                else if constexpr (std::is_floating_point<used_type>::value) {
-                  func(convert_string(TMyTools::double_to_string_fmt(*value, iScale)));
-                  }
+                  retVal = convert_string(TMyTools::double_to_string_fmt(*value, iScale));
+               }
                else {
                   std::ostringstream os;
-                  if(iLen >= 0)   os << std::setw(iLen);
-                  if(iScale >= 0) {
+                  if (iLen >= 0)   os << std::setw(iLen);
+                  if (iScale >= 0) {
                      os.setf(std::ios::showpoint);
                      os.setf(std::ios::fixed);
                      os << std::setprecision(iScale);
-                     }
-                  os << *value;
-                  func(convert_string(os.str()));
                   }
+                  os << *value;
+                  retVal = convert_string(os.str());
                }
             }
+         }
          else {
-            //using used_type = typename std::remove_all_extents<typename std::remove_const<typename std::remove_reference<typename std::remove_cv<ty>::type>::type>::type>::type;
             using used_type = ty;
-            if constexpr      (is_cpp_narrow_string<ty>::value)                   func(convert_string(value));
-            if constexpr      (is_cpp_wide_string<ty>::value)                     func(convert_wstring(value));
-            #if defined BUILD_WITH_VCL || defined BUILD_WITH_FMX
-            else if constexpr (is_delphi_string<used_type>::value)                func(value);
-            #elif defined BUILD_WITH_QT
-            else if constexpr (is_qt_string<used_type>::value)                    func(value);
-            #endif
-            else if constexpr (is_wchar_param<used_type>::value)                  func(value);
-            else if constexpr (is_char_param<used_type>::value)                   func(value);
+            if constexpr (is_cpp_narrow_string<used_type>::value)                 retVal = convert_string(value);
+            else if constexpr (is_cpp_wide_string<used_type>::value)              retVal = convert_wstring(value);
+            else if constexpr (is_delphi_string<used_type>::value)                retVal = value;
+            else if constexpr (is_qt_string<used_type>::value)                    retVal = value;
+            else if constexpr (is_wchar_param<used_type>::value)                  retVal = value;
+            else if constexpr (is_char_param<used_type>::value)                   retVal = value;
             else if constexpr (std::is_integral<used_type>::value && !std::is_same<used_type, bool>::value) {
-               func(convert_string(TMyTools::integral_to_string_fmt<ty>(value)));
+               retVal = convert_string(TMyTools::integral_to_string_fmt<ty>(value));
                }
             else if constexpr (std::is_floating_point<used_type>::value) {
-               func(convert_string(TMyTools::double_to_string_fmt(value, iScale)));
+               retVal = convert_string(TMyTools::double_to_string_fmt(value, iScale));
                }
             else {
                std::ostringstream os;
-               if(iLen >= 0)   os << std::setw(iLen);
-               if(iScale >= 0) {
+               if (iLen >= 0)   os << std::setw(iLen);
+               if (iScale >= 0) {
                   os.setf(std::ios::showpoint);
                   os.setf(std::ios::fixed);
                   os << std::setprecision(iScale);
                   }
                os << value;
-               func(convert_string(os.str()));
-               }
+               retVal = convert_string(os.str());
             }
-         return;
          }
+         return retVal;
+      }
+
+
 
       template <typename ty>
       ty GetText(fw_String const& value) {
