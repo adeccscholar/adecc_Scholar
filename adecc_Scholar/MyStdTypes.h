@@ -58,6 +58,13 @@ enum class EMyAlignmentType : int {
    unknown = 100
 };
 
+enum class EMyMessageType : int {
+   information = 1,
+   warning = 2,
+   error = 3,
+   question,
+   unknown = 100
+};
 
 template <typename char_type>
 using tplList = std::tuple<typename char_type::string_type, int, EMyAlignmentType>;

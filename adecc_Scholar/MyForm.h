@@ -130,6 +130,95 @@ class TMyForm {
          form = nullptr;
          }
 
+
+      EMyRetResults Message(EMyMessageType type, std::string const& caption, std::string const& description) {
+         fw_String strCaption = SetText(caption);
+         fw_String strMessage = SetText(description);
+
+         #if defined BUILD_WITH_VCL
+         int ret;
+         strCaption += "\n" + strMessage;
+         switch(type) {
+            case EMyMessageType::information:
+               ret = MessageDlg(strCaption, TMsgDlgType::mtInformation, TMsgDlgButtons() << TMsgDlgBtn::mbOK, 0);
+               break;
+            case EMyMessageType::warning:
+               ret = MessageDlg(strCaption, TMsgDlgType::mtWarning, TMsgDlgButtons() << TMsgDlgBtn::mbOK, 0);
+               break;
+            case EMyMessageType::error:
+               ret = MessageDlg(strCaption, TMsgDlgType::mtError, TMsgDlgButtons() << TMsgDlgBtn::mbOK, 0);
+               break;
+            case EMyMessageType::question:
+               ret = MessageDlg(strCaption, TMsgDlgType::mtConfirmation, TMsgDlgButtons() << TMsgDlgBtn::mbYes << TMsgDlgBtn::mbNo, 0);
+               break;
+            default:
+               ShowMessage(strCaption);
+            }
+         switch(ret) {
+              case mrOk: 
+              case mrYes: return EMyRetResults::ok;
+              case mrNo:
+              case mrCancel: return EMyRetResults::no;
+              default: return EMyRetResults::unknown;
+            } 
+         #elif defined BUILD_WITH_FMX
+         // in principle VCL and FMX could be combined, because the syntax of the 
+         // function and the classes are the same. 
+         // But for fmx is MessageDlg is deprecated, attention,  Platform.IFMXDialogServiceAsync.MessageDialogAsync
+         int ret;
+         strCaption += "\n" + strMessage;
+         switch(type) {
+            case EMyMessageType::information:
+               ret = MessageDlg(strCaption, TMsgDlgType::mtInformation, TMsgDlgButtons() << TMsgDlgBtn::mbOK, 0);
+               break;
+            case EMyMessageType::warning:
+               ret = MessageDlg(strCaption, TMsgDlgType::mtWarning, TMsgDlgButtons() << TMsgDlgBtn::mbOK, 0);
+               break;
+            case EMyMessageType::error:
+               ret = MessageDlg(strCaption, TMsgDlgType::mtError, TMsgDlgButtons() << TMsgDlgBtn::mbOK, 0);
+               break;
+            case EMyMessageType::question:
+               ret = MessageDlg(strCaption, TMsgDlgType::mtConfirmation, TMsgDlgButtons() << TMsgDlgBtn::mbYes << TMsgDlgBtn::mbNo, 0);
+               break;
+            default:
+               ShowMessage(strCaption);
+            }
+         switch(ret) {
+              case mrOk: 
+              case mrYes: return EMyRetResults::ok;
+              case mrNo:
+              case mrCancel: return EMyRetResults::no;
+              default: return EMyRetResults::unknown;
+            } 
+         #elif defined BUILD_WITH_QT
+         QMessageBox::StandardButton ret;
+         switch(type) {
+            case EMyMessageType::information:
+               ret = QMessageBox::information(Form(), strCaption, strMessage, QMessageBox::Ok);
+               break;
+            case EMyMessageType::warning:
+               ret = QMessageBox::warning(Form(), strCaption, strMessage, QMessageBox::Ok);
+               break;
+            case EMyMessageType::error:
+               ret = QMessageBox::critical(Form(), strCaption, strMessage, QMessageBox::Ok);
+               break;
+            case EMyMessageType::question:
+               ret = QMessageBox::question(Form(), strCaption, strMessage, QMessageBox::Ok | QMessageBox::No);
+               break;
+            default:
+               QMessageBox::about(Form(), strCaption, strMessage);
+               ret = QMessageBox::Ok;
+            }
+
+          switch(ret) {
+             case QMessageBox::Ok: return EMyRetResults::ok;
+             case QMessageBox::No: return EMyRetResults::no;
+             default:
+                return EMyRetResults::unknown;
+             }
+         #endif
+         }
+
       void Set(fw_Form* frm = nullptr, bool owner = false) {
          if(form != nullptr && boOwner == true) delete form;
          form    = frm;
@@ -927,9 +1016,12 @@ class TMyForm {
                for(size_t i = 0u; i < static_cast<size_t>(fld->Items->Count); ++i)
                   if(fld->ListItems[i]->IsSelected) selected_rows.push_back(i);
                }
-            else if constexpr (std::is_same<fw_Combobox, fw>::value)
+            else if constexpr (std::is_same<fw_Combobox, fw>::value) {
                if(fld->ItemIndex >= 0) selected_rows.push_back(static_cast<size_t>(fld->ItemIndex));
-            else static_assert_no_match();
+               }
+            else {
+               static_assert_no_match();
+               }
 
          #elif defined BUILD_WITH_QT
             if constexpr (std::is_same<fw_Table, fw>::value) {
@@ -1156,7 +1248,7 @@ class TMyForm {
 		
 
 
-   private:
+//   private:
       fw_Form* Form(void) {
          if(form == nullptr) throw std::runtime_error("Critical error, member form in this instance of TMyForm is a nullptr");
          return form;
@@ -1248,7 +1340,7 @@ class TMyForm {
             }
          }
          else {
-            using used_type = ty;
+            using used_type = typename std::remove_reference<typename std::remove_cv<ty>::type>::type;;
             if constexpr (is_cpp_narrow_string<used_type>::value)                 retVal = convert_string(value);
             else if constexpr (is_cpp_wide_string<used_type>::value)              retVal = convert_wstring(value);
             else if constexpr (is_delphi_string<used_type>::value)                retVal = value;

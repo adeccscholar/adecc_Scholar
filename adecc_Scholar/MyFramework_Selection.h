@@ -39,6 +39,8 @@
 
 #elif defined BUILD_WITH_FMX
    #include <System.Classes.hpp>
+   #include <Fmx.Dialogs.hpp>
+   #include <System.UITypes.hpp>
    #include <Fmx.Forms.hpp>
    #include <Fmx.StdCtrls.hpp>
    #include <Fmx.Edit.hpp>
@@ -80,6 +82,7 @@
 
 #elif defined BUILD_WITH_QT
    #include <QApplication>
+   #include <QMessageBox>
    #include <QWidget>
    #include <QDialog>
    #include <QGroupBox>
@@ -92,6 +95,7 @@
    #include <QTableWidget>
    #include <QString>
    #include <QStatusBar>
+
 
    struct is_delpi_compatible : std::false_type {};
    struct is_vcl_compile : std::false_type {};

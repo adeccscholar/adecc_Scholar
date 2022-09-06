@@ -308,10 +308,10 @@ class ListBoxStreamBuf : public StreamBufBase<ty> {
 private:
    QListWidget* value;
 public:
-   ListBoxStreamBuf(QListWidget* para, bool boMultiSelect = false, bool boClean = true) : StreamBufBase<ty>() {
+   ListBoxStreamBuf(QListWidget* para, bool boMultiSelect = true, bool boClean = true) : StreamBufBase<ty>() {
       value = para;
-      if (boMultiSelect) value->setSelectionMode(QAbstractItemView::ExtendedSelection);
-      else value->setSelectionMode(QAbstractItemView::SingleSelection);
+     // if (boMultiSelect) value->setSelectionMode(QAbstractItemView::ExtendedSelection);
+     // else value->setSelectionMode(QAbstractItemView::SingleSelection);
       if (boClean) value->clear();
    }
 
