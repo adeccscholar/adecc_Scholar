@@ -8,7 +8,6 @@
 #include <vector>
 #include <tuple>
 
-
 struct Narrow {
    using stream_type  = std::ostream;
    using string_type  = std::string;
@@ -43,6 +42,8 @@ struct Wide {
    static inline const stringstream::int_type cTab = L'\t';
    };
 
+enum EMyFramework : int { vcl, fmx, qt, unknown };
+
 template <typename char_type>
 struct TMyDelimiter {
   typename char_type::string_type leading;
@@ -62,7 +63,7 @@ enum class EMyMessageType : int {
    information = 1,
    warning = 2,
    error = 3,
-   question,
+   question = 4,
    unknown = 100
 };
 

@@ -87,6 +87,14 @@ class TMyForm {
      bool         boOwner = false;
      mapRepositories cbsrep;
 
+     static std::map<EMyFramework, std::string> inline mpFrameworks = {
+        { EMyFramework::vcl, "Embarcadero C++Builder, Visual Component Library" },
+        { EMyFramework::fmx, "Embarcadero C++Builder, FireMonkey Library" },
+        { EMyFramework::qt,  "Qt6" },
+        { EMyFramework::unknown, "unbekanntes Framework" }
+     };
+
+
       #if defined BUILD_WITH_VCL
       static const inline std::map<EMyAlignmentType, TAlignment> align_type_conv = {
                                { EMyAlignmentType::left,  taLeftJustify },
@@ -130,6 +138,19 @@ class TMyForm {
          form = nullptr;
          }
 
+      std::string const& GetFramework() const {
+         EMyFramework fw;
+         #if defined BUILD_WITH_VCL
+            fw = EMyFramework::vcl;
+         #elif defined BUILD_WITH_FMX
+            fw = EMyFramework::fmx;
+         #elif defined BUILD_WITH_QT   
+            fw = EMyFramework::qt;
+         #else
+            fw = EMyFramework::unknowm;
+         #endif
+         return mpFrameworks[fw];
+         }
 
       EMyRetResults Message(EMyMessageType type, std::string const& caption, std::string const& description) {
          fw_String strCaption = SetText(caption);
@@ -203,7 +224,7 @@ class TMyForm {
                ret = QMessageBox::critical(Form(), strCaption, strMessage, QMessageBox::Ok);
                break;
             case EMyMessageType::question:
-               ret = QMessageBox::question(Form(), strCaption, strMessage, QMessageBox::Ok | QMessageBox::No);
+               ret = QMessageBox::question(Form(), strCaption, strMessage, QMessageBox::Yes | QMessageBox::No);
                break;
             default:
                QMessageBox::about(Form(), strCaption, strMessage);
@@ -211,6 +232,7 @@ class TMyForm {
             }
 
           switch(ret) {
+             case QMessageBox::Yes:
              case QMessageBox::Ok: return EMyRetResults::ok;
              case QMessageBox::No: return EMyRetResults::no;
              default:

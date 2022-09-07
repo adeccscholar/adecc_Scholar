@@ -1,6 +1,8 @@
 ﻿#pragma once
 
 #if defined BUILD_WITH_VCL
+   EMyFramework inline currentFramework = EMyFramework::vcl;
+
    #include <System.Classes.hpp>
    #include <Vcl.Forms.hpp>
    #include <Vcl.StdCtrls.hpp>
@@ -38,6 +40,8 @@
    using fw_Statusbar = TStatusBar;
 
 #elif defined BUILD_WITH_FMX
+   EMyFramework inline currentFramework = EMyFramework::fmx;
+
    #include <System.Classes.hpp>
    #include <Fmx.Dialogs.hpp>
    #include <System.UITypes.hpp>
@@ -81,6 +85,8 @@
    using fw_Statusbar = TStatusBar;
 
 #elif defined BUILD_WITH_QT
+   EMyFramework inline currentFramework = EMyFramework::qt;
+
    #include <QApplication>
    #include <QMessageBox>
    #include <QWidget>
@@ -116,5 +122,6 @@
    using fw_Statusbar = QStatusBar;
 
 #else
+  EMyFramework inline currentFramework = EMyFramework::unknown;
   #error Ein Framework muss gewählt sein, um diese Bibliothek zu nutzen
 #endif
