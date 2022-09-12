@@ -9,8 +9,6 @@ To use the headeronly library from the semester break, one of the following cons
 - BUILD_WITH_FMX, C++Builder or RAD Studio 10.3 or higher with platform independent application (FMX)
 - BUILD_WITH_QT - for Visual Studio with Qt6 and with the Qt Creator
 
-Translated with www.DeepL.com/Translator (free version)
-
 Questions and suggestions please via the Discord server for adecc Scholar
 
 # From the wish list to the independent program
