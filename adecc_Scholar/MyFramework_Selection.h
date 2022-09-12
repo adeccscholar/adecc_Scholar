@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include "MyStdTypes.h"
+
 #if defined BUILD_WITH_VCL
    EMyFramework inline currentFramework = EMyFramework::vcl;
 
@@ -125,3 +127,15 @@
   EMyFramework inline currentFramework = EMyFramework::unknown;
   #error Ein Framework muss gewählt sein, um diese Bibliothek zu nutzen
 #endif
+
+template <EMyFrameworkType ft> struct MyFrameworkSelect { using type = void; };
+template <> struct MyFrameworkSelect<EMyFrameworkType::edit> { using type = fw_Edit;  };
+template <> struct MyFrameworkSelect<EMyFrameworkType::label> { using type = fw_Label; };
+template <> struct MyFrameworkSelect<EMyFrameworkType::groupbox> { using type = fw_Groupbox; };
+template <> struct MyFrameworkSelect<EMyFrameworkType::button> { using type = fw_Button; };
+template <> struct MyFrameworkSelect<EMyFrameworkType::checkbox> { using type = fw_Checkbox; };
+template <> struct MyFrameworkSelect<EMyFrameworkType::combobox> { using type = fw_Combobox; };
+template <> struct MyFrameworkSelect<EMyFrameworkType::memo> { using type = fw_Memo; };
+template <> struct MyFrameworkSelect<EMyFrameworkType::statusbar> { using type = fw_Statusbar; };
+template <> struct MyFrameworkSelect<EMyFrameworkType::listbox> { using type = fw_Listbox; };
+template <> struct MyFrameworkSelect<EMyFrameworkType::listview> { using type = fw_Table; };

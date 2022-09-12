@@ -191,12 +191,14 @@ public:
 
    virtual void Write(void) {
       if (StreamBufBase<ty>::os.str().length() > 0) {
+        value->moveCursor(QTextCursor::End);
         if constexpr (std::is_same<Wide, ty>::value)
-           value->append(QString::fromStdWString(StreamBufBase<ty>::os.str()));
+           value->insertPlainText(QString::fromStdWString(StreamBufBase<ty>::os.str()));
         else if constexpr (std::is_same<Latin, ty>::value)
-           value->append(QString::fromLatin1(QByteArray::fromStdString(StreamBufBase<ty>::os.str())));
+           value->insertPlainText(QString::fromLatin1(QByteArray::fromStdString(StreamBufBase<ty>::os.str())));
         else
-           value->append(QString::fromStdString(StreamBufBase<ty>::os.str()));
+           value->insertPlainText(QString::fromStdString(StreamBufBase<ty>::os.str()));
+        value->insertPlainText("\n");
          }
       else {
         value->append("");

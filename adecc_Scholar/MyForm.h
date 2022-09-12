@@ -283,12 +283,16 @@ class TMyForm {
       //------------------------------------------------------------------------
       template<typename ty_base, EMyFrameworkType ft>
       void GetAsStream(TStreamWrapper<ty_base>& wrapper, std::string const& strName) {
+         /*
          if constexpr (ft == EMyFrameworkType::memo)
             wrapper.Activate(Find<fw_Memo>(strName));
          else if constexpr (ft == EMyFrameworkType::listbox)
             wrapper.Activate(Find<fw_Listbox>(strName));
          else if constexpr (ft == EMyFrameworkType::combobox)
             wrapper.Activate(Find<fw_Combobox>(strName));
+         */
+         if constexpr(ft == EMyFrameworkType::memo || ft == EMyFrameworkType::listbox || ft == EMyFrameworkType::combobox)
+            wrapper.Activate(Find<typename MyFrameworkSelect<ft>::type>(strName));
          else if constexpr (ft == EMyFrameworkType::statusbar)
             #if defined BUILD_WITH_VCL
             wrapper.Activate(Find<fw_Statusbar>(strName));
@@ -422,6 +426,7 @@ class TMyForm {
          #else
             #error Missing implementation for function TMyForm::Visible() for the chosen framework
          #endif
+         /*
          if constexpr      (ft == EMyFrameworkType::edit)     set(Find<fw_Edit>(strField), boVisible);
          else if constexpr (ft == EMyFrameworkType::memo)     set(Find<fw_Memo>(strField), boVisible);
          else if constexpr (ft == EMyFrameworkType::label)    set(Find<fw_Label>(strField), boVisible);
@@ -429,6 +434,11 @@ class TMyForm {
          else if constexpr (ft == EMyFrameworkType::combobox) set(Find<fw_Combobox>(strField), boVisible);
          else if constexpr (ft == EMyFrameworkType::checkbox) set(Find<fw_Checkbox>(strField), boVisible);
          else if constexpr (ft == EMyFrameworkType::button)   set(Find<fw_Button>(strField), boVisible);
+         */
+         if constexpr (ft == EMyFrameworkType::edit     || ft == EMyFrameworkType::memo || ft == EMyFrameworkType::label ||
+                       ft == EMyFrameworkType::groupbox || ft == EMyFrameworkType::combobox || ft == EMyFrameworkType::listbox ||
+                       ft == EMyFrameworkType::checkbox || ft == EMyFrameworkType::button)   
+            set(Find<typename MyFrameworkSelect<ft>::type>(strField), boVisible);
          else                                                 static_assert_no_match();
          }
 
@@ -442,6 +452,7 @@ class TMyForm {
          #else
            #error Missing implementation for function TMyForm::Enable() for the chosen framework
          #endif
+         /*
          if constexpr      (ft == EMyFrameworkType::edit) 	  set(Find<fw_Edit>(strField), boEnabled);
          else if constexpr (ft == EMyFrameworkType::memo)     set(Find<fw_Memo>(strField), boEnabled);
          else if constexpr (ft == EMyFrameworkType::label)    set(Find<fw_Label>(strField), boEnabled);
@@ -450,6 +461,11 @@ class TMyForm {
          else if constexpr (ft == EMyFrameworkType::listbox)  set(Find<fw_Listbox>(strField), boEnabled);
          else if constexpr (ft == EMyFrameworkType::checkbox) set(Find<fw_Checkbox>(strField), boEnabled);
          else if constexpr (ft == EMyFrameworkType::button)   set(Find<fw_Button>(strField), boEnabled);
+         */ 
+         if constexpr (ft == EMyFrameworkType::edit || ft == EMyFrameworkType::memo || ft == EMyFrameworkType::label ||
+            ft == EMyFrameworkType::groupbox || ft == EMyFrameworkType::combobox || ft == EMyFrameworkType::listbox ||
+            ft == EMyFrameworkType::checkbox || ft == EMyFrameworkType::button)
+            set(Find<typename MyFrameworkSelect<ft>::type>(strField), boEnabled);
          else                                                 static_assert_no_match();
          }
 
@@ -676,6 +692,43 @@ class TMyForm {
          #else
            #error Missing implementation for function TMyForm::SetFirstComboBox() for the chosen framework
          #endif
+         }
+
+      template <EMyFrameworkType ft>
+      void SetPosition(std::string const& strField, size_t line) {
+         if constexpr (ft == EMyFrameworkType::combobox) {
+            auto field = Find<typename MyFrameworkSelect<ft>::type>(strField);
+            #if defined BUILD_WITH_VCL || defined BUILD_WITH_FMX
+               if (field->Items->Count > 0) field->ItemIndex = line;
+            #elif defined BUILD_WITH_QT
+               if (field->count() > 0) field->setCurrentIndex(0);
+            #else
+               #error Missing implementation for function TMyForm::SetPosition() for the chosen framework
+            #endif
+            }
+         else if constexpr (ft == EMyFrameworkType::memo) {
+            auto field = Find<typename MyFrameworkSelect<ft>::type>(strField);
+            #if defined BUILD_WITH_VCL
+               field->CaretPos = TPoint(0, line);
+               SendMessage(field->Handle, EM_LINESCROLL,0, line); // VCL is only Windows
+            #elif defined BUILD_WITH_FMX
+               auto cntrl = form->ActiveControl;   // scary workaround 
+               field->SetFocus();     
+               field->GoToTextEnd();
+               field->CaretPosition = TCaretPosition::Create(line, 0);
+               form->ActiveControl = cntrl;
+            #elif defined BUILD_WITH_QT
+               QTextCursor textCursor = field->textCursor();
+               textCursor.movePosition(QTextCursor::Start);
+               textCursor.movePosition(QTextCursor::Down, QTextCursor::MoveAnchor, line);
+               //textCursor.movePosition(QTextCursor::Right, QTextCursor::MoveAnchor, col);
+               field->setTextCursor(textCursor);
+            #else
+               #error Missing implementation for function TMyForm::SetPosition() for the chosen framework
+            #endif
+
+            }
+         else static_assert_no_match();
          }
 
       //---------------------------------------------------------------------------
@@ -1249,12 +1302,10 @@ class TMyForm {
 	   std::optional<ty> GetValue(std::string const& strField, size_t iRow, size_t iCol = 0u) {
          try {
 	         fw_String item;
-            if constexpr (ft == EMyFrameworkType::listview)
-               item = get_item_text(Find<fw_Table>(strField), iRow, iCol);
-            else if constexpr (ft == EMyFrameworkType::listbox)
-		         item = get_item_text(Find<fw_Listbox>(strField), iRow, iCol);
-            else if constexpr (ft == EMyFrameworkType::combobox)
-               item = get_item_text(Find<fw_Combobox>(strField), iRow, iCol);
+            if constexpr (ft == EMyFrameworkType::listview || 
+                          ft == EMyFrameworkType::listbox || 
+                          ft == EMyFrameworkType::combobox)
+               item = get_item_text(Find<typename MyFrameworkSelect<ft>::type>(strField), iRow, iCol);
             else static_assert_no_match();
 
             if(get_text_length(item) == 0) return std::nullopt;
@@ -1267,10 +1318,14 @@ class TMyForm {
             throw std::runtime_error(os.str());
             }
 	      }
-		
+      
 
+      template <EMyFrameworkType ft>
+      bool Exists(std::string const& strField) { 
+         return Check<typename MyFrameworkSelect<ft>::type>(strField) != nullptr ? true : false;
+         }
 
-//   private:
+   private:
       fw_Form* Form(void) {
          if(form == nullptr) throw std::runtime_error("Critical error, member form in this instance of TMyForm is a nullptr");
          return form;
@@ -1300,14 +1355,27 @@ class TMyForm {
          ty* field = dynamic_cast<ty*>(comp);
          if(!field) {
             std::ostringstream os;
-            // type name for gcc and clanf mangled
-            // #include <boost/core/demangle.hpp>
-            // boost::core::demangle(...);
+            // type name for gcc and clang mangled, #include <boost/core/demangle.hpp> + boost::core::demangle(...);
             os << "A field \"" << strField << "\" exist in the formular \"" << FormName()
                << "\", but can\'t cast to requested type " << typeid(ty).name() <<".";
             throw std::runtime_error(os.str().c_str());
             }
          return field;
+         }
+
+      template <typename ty>
+      ty* Check(std::string const& strField) {
+         #if defined BUILD_WITH_VCL || defined BUILD_WITH_FMX
+            auto* comp = Form()->FindComponent(strField.c_str());
+         #elif defined BUILD_WITH_QT
+            auto* comp = Form()->findChild<QObject* >(QString::fromStdString(strField));
+         #else
+            #error Missing implementation for function TMyForm::Check() for the chosen framework
+         #endif
+         if (comp) {
+            return dynamic_cast<ty*>(comp);
+            }
+         else return nullptr;
          }
 
 
