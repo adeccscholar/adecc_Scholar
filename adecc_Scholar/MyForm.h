@@ -283,14 +283,6 @@ class TMyForm {
       //------------------------------------------------------------------------
       template<typename ty_base, EMyFrameworkType ft>
       void GetAsStream(TStreamWrapper<ty_base>& wrapper, std::string const& strName) {
-         /*
-         if constexpr (ft == EMyFrameworkType::memo)
-            wrapper.Activate(Find<fw_Memo>(strName));
-         else if constexpr (ft == EMyFrameworkType::listbox)
-            wrapper.Activate(Find<fw_Listbox>(strName));
-         else if constexpr (ft == EMyFrameworkType::combobox)
-            wrapper.Activate(Find<fw_Combobox>(strName));
-         */
          if constexpr(ft == EMyFrameworkType::memo || ft == EMyFrameworkType::listbox || ft == EMyFrameworkType::combobox)
             wrapper.Activate(Find<typename MyFrameworkSelect<ft>::type>(strName));
          else if constexpr (ft == EMyFrameworkType::statusbar)
@@ -452,16 +444,7 @@ class TMyForm {
          #else
            #error Missing implementation for function TMyForm::Enable() for the chosen framework
          #endif
-         /*
-         if constexpr      (ft == EMyFrameworkType::edit) 	  set(Find<fw_Edit>(strField), boEnabled);
-         else if constexpr (ft == EMyFrameworkType::memo)     set(Find<fw_Memo>(strField), boEnabled);
-         else if constexpr (ft == EMyFrameworkType::label)    set(Find<fw_Label>(strField), boEnabled);
-         else if constexpr (ft == EMyFrameworkType::groupbox) set(Find<fw_Groupbox>(strField), boEnabled);
-         else if constexpr (ft == EMyFrameworkType::combobox) set(Find<fw_Combobox>(strField), boEnabled);
-         else if constexpr (ft == EMyFrameworkType::listbox)  set(Find<fw_Listbox>(strField), boEnabled);
-         else if constexpr (ft == EMyFrameworkType::checkbox) set(Find<fw_Checkbox>(strField), boEnabled);
-         else if constexpr (ft == EMyFrameworkType::button)   set(Find<fw_Button>(strField), boEnabled);
-         */ 
+         
          if constexpr (ft == EMyFrameworkType::edit || ft == EMyFrameworkType::memo || ft == EMyFrameworkType::label ||
             ft == EMyFrameworkType::groupbox || ft == EMyFrameworkType::combobox || ft == EMyFrameworkType::listbox ||
             ft == EMyFrameworkType::checkbox || ft == EMyFrameworkType::button)

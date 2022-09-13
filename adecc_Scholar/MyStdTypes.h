@@ -1,5 +1,4 @@
-﻿#ifndef MyStdTypesH
-#define MyStdTypesH
+﻿#pragma once
 
 #include <iostream>
 #include <string>
@@ -51,6 +50,49 @@ struct TMyDelimiter {
   typename char_type::string_type trailing;
 };
 
+
+// ab C++20 Umbau auf source_location möglich
+class my_source_position {
+   friend std::ostream& operator << (std::ostream& out, my_source_position const& pos) {
+      return out << "[function \"" << pos.strFunction << "\" in " << pos.strFile << " at line " << pos.iLine << "]";
+   }
+
+private:
+   std::string strFunction = "";
+   std::string strFile = "";
+   size_t      iLine = 0;
+
+public:
+   //source_position() = default;
+   my_source_position(std::string const& pFunc, std::string const& pFile, size_t pLine) :
+      strFunction(pFunc), strFile(pFile), iLine(pLine) { }
+   my_source_position(my_source_position const&) = delete;
+
+   my_source_position(my_source_position&& rref) noexcept {
+      std::swap(strFunction, rref.strFunction);
+      std::swap(strFile, rref.strFile);
+      std::swap(iLine, rref.iLine);
+   }
+
+   ~my_source_position(void) = default;
+
+   my_source_position& operator = (my_source_position&& rref) noexcept {
+      std::swap(strFunction, rref.strFunction);
+      std::swap(strFile, rref.strFile);
+      std::swap(iLine, rref.iLine);
+      return *this;
+   }
+
+   std::string const& Function() const { return strFunction; }
+   std::string const& File() const { return strFile; }
+   size_t      Line() const { return iLine; }
+
+};
+
+#define MY_POSITION() my_source_position(__func__, __FILE__, __LINE__) 
+
+
+
 /// Enumeration with values for the alignment of a field independent of the framework
 enum class EMyAlignmentType : int {
    left = 1,
@@ -81,7 +123,8 @@ enum class EMyRetResults {
 						   yes,           ///< modal value yes returned
 						   no,            ///< modal value no returned
 						   cancel,        ///< modal value cancel returned
-						   unknown        ///< returned modal value is unknown
+                     error,         ///< error inside modal window
+						   unknown  =100  ///< returned modal value is unknown
 						   };
 
 /// Enumeration to specify a type for an element of the framework
@@ -120,5 +163,4 @@ using tplFormData = std::tuple<tplFormInformation, vecFormElements>;
 using mapFormsDictionary = std::map<std::string, tplFormData>;
 
 
-#endif
 
