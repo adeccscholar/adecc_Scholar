@@ -9,6 +9,7 @@
    #include <Vcl.Forms.hpp>
    #include <Vcl.StdCtrls.hpp>
    #include <Vcl.ComCtrls.hpp>
+   #include <Vcl.Dialogs.hpp>
 
    struct is_delpi_compatible : std::true_type {};
    struct is_vcl_compile : std::true_type {};
