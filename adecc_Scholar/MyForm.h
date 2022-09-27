@@ -648,7 +648,7 @@ class TMyForm {
               QListWidgetItem* item = field->item(i);
               if (itemSeek->text() == item->text()) break;
               }
-           if (i < field->count()) field->setCurrentRow(0);
+           if (i < field->count()) field->setCurrentRow(i);
          #else
            #error Missing implementation for function TMyForm::SetListBox() for the chosen framework
          #endif
