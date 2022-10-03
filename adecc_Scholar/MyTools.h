@@ -195,13 +195,25 @@ class TMyTools {
          return strText;
       }
 
-      static bool wildcard_matching(std::string const& text, std::string const& pattern) {
-         std::string strTemp = "^" + pattern + "$";
-         replace_all(strTemp, "?", ".");
-         replace_all(strTemp, "*", ".*?");
-         std::regex parser(strTemp);
-         if (std::regex_match(text, parser)) return true;
-         else return false;
+      // Optimierung von replace
+      static std::string&& replace_all(std::string &&strSource, std::string const& strFrom, std::string const& strTo) {
+         size_t start = 0;
+         while ((start = strSource.find(strFrom, start)) != std::string::npos) {
+            strSource.replace(start, strFrom.length(), strTo);
+            start += strTo.length();
+         }
+         return std::move(strSource);
+      }
+
+      static bool wildcard_matching(std::string const& text, std::string const& pattern, bool boCaseSensitive = false) {
+         std::string strTemp = replace_all(replace_all(replace_all("^"s + pattern + "$"s, "."s, "\\."s), "?"s, "."s), "*"s, ".*?"s);
+         if(!boCaseSensitive) {
+            if (std::regex_match(text, std::regex { strTemp, std::regex_constants::icase })) return true;
+            }
+         else {
+            if (std::regex_match(text, std::regex { strTemp } )) return true;
+            }
+         return false;
          }
 
       //------------------------------------------------------------------------
