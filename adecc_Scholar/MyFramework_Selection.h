@@ -2,10 +2,11 @@
 
 #include "MyStdTypes.h"
 
+#include "MyFramework_String.h"
+
 #if defined BUILD_WITH_VCL
    EMyFramework inline currentFramework = EMyFramework::vcl;
 
-   #include <System.Classes.hpp>
    #include <Vcl.Forms.hpp>
    #include <Vcl.StdCtrls.hpp>
    #include <Vcl.ComCtrls.hpp>
@@ -29,7 +30,6 @@
    using TListView    = Vcl::Comctrls::TListView;
    using TPageControl = Vcl::Comctrls::TPageControl;
 
-   using fw_String    = UnicodeString;
    using fw_Form      = TForm;
    using fw_Groupbox  = TGroupBox;
    using fw_Edit      = TEdit;
@@ -45,7 +45,6 @@
 #elif defined BUILD_WITH_FMX
    EMyFramework inline currentFramework = EMyFramework::fmx;
 
-   #include <System.Classes.hpp>
    #include <Fmx.Dialogs.hpp>
    #include <System.UITypes.hpp>
    #include <Fmx.Forms.hpp>
@@ -74,7 +73,6 @@
    using TStringGrid = Fmx::Grid::TStringGrid;
    using TTabControl = Fmx::Tabcontrol::TTabControl;
 
-   using fw_String    = UnicodeString;
    using fw_Form      = TForm;
    using fw_Groupbox  = TGroupBox;
    using fw_Edit      = TEdit;
@@ -102,7 +100,6 @@
    #include <QListWidget>
    #include <QCheckBox>
    #include <QTableWidget>
-   #include <QString>
    #include <QStatusBar>
 
 
@@ -111,7 +108,6 @@
    struct is_fmx_compile : std::false_type {};
    struct is_qt_compile : std::true_type {};
 
-   using fw_String    = QString;
    using fw_Form      = QWidget;
    using fw_Groupbox  = QGroupBox;
    using fw_Edit      = QLineEdit;
