@@ -83,42 +83,75 @@ class TMyTools {
       */
 
       //------------------------------------------------------------------------
-      static std::string trim_left(std::string && strVal, std::string const& strDelimiter = " ") {
+      static std::string trim_left(std::string && strVal, std::string const& strDelimiter = " "s) {
          strVal.erase(0, strVal.find_first_not_of(strDelimiter));
          return strVal;
          }
 
       //------------------------------------------------------------------------
-      static std::string trim_right(std::string && strVal, std::string const& strDelimiter = " ") {
-         strVal.erase(strVal.find_last_not_of(strDelimiter), strVal.length());
+      static std::string trim_right(std::string && strVal, std::string const& strDelimiter = " "s) {
+         strVal.erase(strVal.find_last_not_of(strDelimiter) + 1, strVal.length());
          return strVal;
          }
 
       //------------------------------------------------------------------------
-      static std::string trim(std::string && strVal, std::string const& strDelimiter = " ") {
+      static std::string trim(std::string && strVal, std::string const& strDelimiter = " "s) {
          strVal.erase(0, strVal.find_first_not_of(strDelimiter));
          strVal.erase(strVal.find_last_not_of(strDelimiter) + 1, strVal.length());
          return strVal;
          }
 
-      static std::string trim_left(std::string const& strText, std::string const& strDelimiter = " ") {
+      static std::string trim_left(std::string const& strText, std::string const& strDelimiter = " "s) {
          std::string strVal(strText);
-		 return trim_left(std::forward<std::string>(strVal));
+		 return trim_left(std::forward<std::string>(strVal), strDelimiter);
          }
 
       //------------------------------------------------------------------------
-      static std::string trim_right(std::string const& strText, std::string const& strDelimiter = " ") {
+      static std::string trim_right(std::string const& strText, std::string const& strDelimiter = " "s) {
          std::string strVal(strText);
-         return trim_right(std::forward<std::string>(strVal));
+         return trim_right(std::forward<std::string>(strVal), strDelimiter);
          }
 
       //------------------------------------------------------------------------
-      static std::string trim(std::string const& strText, std::string const& strDelimiter = " ") {
+      static std::string trim(std::string const& strText, std::string const& strDelimiter = " "s) {
          std::string strVal(strText);
-         return trim(std::forward<std::string>(strVal));
+         return trim(std::forward<std::string>(strVal), strDelimiter);
          }
 
       /// \}
+
+
+      static int tokenize(std::string const& strInput, std::string const& strDelimiter, std::vector<std::string>& vecData, int iSize = -1) {
+         int iCount = 0;
+         vecData.clear();
+         if (iSize >= 0) vecData.reserve(iSize);
+         size_t iPos = 0, iEnd;
+         do {
+            iEnd = strInput.find(strDelimiter, iPos);
+            std::string strPart = strInput.substr(iPos, iEnd - iPos);
+            vecData.emplace_back(std::forward<std::string>(strPart));
+            ++iCount;
+            iPos = iEnd + strDelimiter.length();
+         } while (iEnd != std::string::npos);
+         return iCount;
+      }
+
+      static int tokenize(std::string const& strInput, std::vector<int> const& grouping, std::vector<std::string>& vecData, int iSize = -1) {
+         auto it = grouping.cbegin();
+         int iStart = 0;
+         int iCount = 0;
+         vecData.clear();
+         if (iSize >= 0) vecData.reserve(iSize);
+         while (it != grouping.end()) {
+            std::string strPart = strInput.substr(iStart, *it);
+            vecData.emplace_back(std::forward<std::string>(strPart));
+            iStart += *it;
+            ++iCount;
+            ++it;
+         }
+         return iCount;
+      }
+
 
       //------------------------------------------------------------------------
       static std::string clean(std::string const& strText, char cDelimiter = ' ') {
