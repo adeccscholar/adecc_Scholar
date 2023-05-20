@@ -240,7 +240,16 @@ class TMyForm {
              }
          #endif
          }
-
+		 
+		 
+	  static void ProcessEvents(void) {
+		 #if defined BUILD_WITH_VCL || defined BUILD_WITH_FMX
+		 Application->ProcessMessages();
+         #elif defined BUILD_WITH_QT
+         QApplication::processEvents();	  
+         #endif
+	     }
+		 
       void Set(fw_Form* frm = nullptr, bool owner = false) {
          if(form != nullptr && boOwner == true) delete form;
          form    = frm;
@@ -387,6 +396,37 @@ class TMyForm {
             throw std::runtime_error("unexpexted align for Alignment in Form");
             }
          }
+
+      template <EMyFrameworkType ft>
+      void EnableUpdates(std::string const& strField, bool enabled) {
+		 #if defined BUILD_WITH_VCL || defined BUILD_WITH_FMX
+         if(enabled) {
+		    if constexpr (ft == EMyFrameworkType::listview) Find<fw_Table>(strField)->Items->EndUpdate();
+            else if constexpr (ft == EMyFrameworkType::listbox) Find<fw_Listbox>(strField)->Items->EndUpdate();
+            else if constexpr (ft == EMyFrameworkType::combobox) Find<fw_Combobox>(strField)->Items->EndUpdate();
+		    else if constexpr (ft == EMyFrameworkType::memo) Find<fw_Memo>(strField)->Items->EndUpdate();
+            else static_assert_no_match(); 		 
+		    }
+         else {
+		    if constexpr (ft == EMyFrameworkType::listview) Find<fw_Table>(strField)->Items->BeginUpdate();
+            else if constexpr (ft == EMyFrameworkType::listbox) Find<fw_Listbox>(strField)->Items->BeginUpdate();
+            else if constexpr (ft == EMyFrameworkType::combobox) Find<fw_Combobox>(strField)->Items->BeginUpdate();
+		    else if constexpr (ft == EMyFrameworkType::memo) Find<fw_Memo>(strField)->Items->BeginUpdate();
+            else static_assert_no_match(); 		 	 
+		    }					 
+         #elif defined BUILD_WITH_QT
+		 if constexpr (ft == EMyFrameworkType::listview) Find<fw_Table>(strField)->setUpdatesEnabled(enabled);
+         else if constexpr (ft == EMyFrameworkType::listbox) Find<fw_Listbox>(strField)->setUpdatesEnabled(enabled);
+         else if constexpr (ft == EMyFrameworkType::combobox) Find<fw_Combobox>(strField)->setUpdatesEnabled(enabled);
+		 else if constexpr (ft == EMyFrameworkType::memo) Find<fw_Memo>(strField)->setUpdatesEnabled(enabled);
+         else static_assert_no_match(); 
+		 
+         #else
+		  #error Missing implementation for function TMyForm::EnableUpdates() for the chosen framework
+         #endif
+	 
+	     }
+		  
 
       //----------------------------------------------------------------------------------------
       template <EMyFrameworkType ft>

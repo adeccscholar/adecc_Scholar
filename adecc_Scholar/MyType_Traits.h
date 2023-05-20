@@ -145,7 +145,7 @@ struct is_optional : std::false_type {};
 template <typename ty>
 struct is_optional<std::optional<ty>> : std::true_type {};
 
-
+/*
 template <typename T, typename = void>
 struct is_container : std::false_type {};
 
@@ -185,5 +185,5 @@ struct is_set<ty, typename std::enable_if<std::is_same<ty,std::set<typename ty::
                                           typename ty::key_compare, typename ty::allocator_type>>::value>::type> {
   static constexpr bool value = true;
 };
-
+*/
 
