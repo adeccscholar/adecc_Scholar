@@ -548,6 +548,8 @@ public:
       tw->setShowGrid(false);
       
       if (boClean) {
+         tw->clearContents();
+         while (tw->rowCount() > 0) tw->removeRow(0);
          tw->clear();
          QStringList m_TableHeader;
          tw->setColumnCount(ListStreamBufBase<ty>::captions.size());
@@ -703,9 +705,9 @@ class TStreamWrapper {
         old = str.rdbuf(new ListViewStreamBuf<ty_base>(elem, caps));
         }
 #elif defined BUILD_WITH_QT
-     void Activate(QTableWidget* elem, std::vector<tplList<ty_base>> const& caps) {
+     void Activate(QTableWidget* elem, std::vector<tplList<ty_base>> const& caps, bool clear = true) {
         Reset();
-        old = str.rdbuf(new ListViewStreamBuf<ty_base>(elem, caps));
+        old = str.rdbuf(new ListViewStreamBuf<ty_base>(elem, caps, clear));
      }
 
 #endif

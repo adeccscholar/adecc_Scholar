@@ -224,7 +224,7 @@ class TMyForm {
                ret = QMessageBox::critical(Form(), strCaption, strMessage, QMessageBox::Ok);
                break;
             case EMyMessageType::question:
-               ret = QMessageBox::question(Form(), strCaption, strMessage, QMessageBox::Yes | QMessageBox::No);
+               ret = QMessageBox::question(Form(), strCaption, strMessage, QMessageBox::Yes | QMessageBox::No |  QMessageBox::Cancel);
                break;
             default:
                QMessageBox::about(Form(), strCaption, strMessage);
@@ -235,6 +235,7 @@ class TMyForm {
              case QMessageBox::Yes:
              case QMessageBox::Ok: return EMyRetResults::ok;
              case QMessageBox::No: return EMyRetResults::no;
+			 case QMessageBox::Cancel: return EMyRetResults::cancel;
              default:
                 return EMyRetResults::unknown;
              }
@@ -318,9 +319,9 @@ class TMyForm {
 
       //------------------------------------------------------------------------
       template<typename ty_base, EMyFrameworkType ft>
-      void GetAsStream(TStreamWrapper<ty_base>& wrapper, std::string const& strName, std::vector<tplList<ty_base>> const& caps) {
+      void GetAsStream(TStreamWrapper<ty_base>& wrapper, std::string const& strName, std::vector<tplList<ty_base>> const& caps, bool clear = true) {
          if constexpr (ft == EMyFrameworkType::listview)
-            wrapper.Activate(Find<fw_Table>(strName), caps);
+            wrapper.Activate(Find<fw_Table>(strName), caps, clear);
          else
             static_assert_no_supported();
          }
@@ -1467,7 +1468,7 @@ class TMyForm {
                      #if defined BUILD_WITH_VCL || defined BUILD_WITH_FMX
                      set_to(it->first.c_str());
                      #elif defined BUILD_WITH_QT
-                     set_to(QString::fromStdString(it->first()));
+                     set_to(QString::fromStdString(it->first));
                      #endif
                      }
                   else {
