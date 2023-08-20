@@ -77,10 +77,8 @@ class TMyWait {
 
 
 class TMyForm {
-   friend void swap(TMyForm& lhs, TMyForm& rhs) {
-             std::swap(lhs.form, rhs.form);
-             std::swap(lhs.boOwner, rhs.boOwner);
-             std::swap(lhs.cbsrep, rhs.cbsrep);
+   friend void swap(TMyForm& lhs, TMyForm& rhs) noexcept {
+             lhs.swap(rhs);
              }
    private:
      fw_Form*     form    = nullptr;
@@ -137,6 +135,14 @@ class TMyForm {
          if(boOwner) delete form;
          form = nullptr;
          }
+
+
+      void swap(TMyForm& ref) noexcept {
+         std::swap(form, ref.form);
+         std::swap(boOwner, ref.boOwner);
+         std::swap(cbsrep, ref.cbsrep);
+      }
+
 
       std::string const& GetFramework() const {
          EMyFramework fw;
@@ -1349,16 +1355,16 @@ class TMyForm {
          return Check<typename MyFrameworkSelect<ft>::type>(strField) != nullptr ? true : false;
          }
 
-   private:
       fw_Form* Form(void) {
-         if(form == nullptr) throw std::runtime_error("Critical error, member form in this instance of TMyForm is a nullptr");
+         if (form == nullptr) throw std::runtime_error("Critical error, member form in this instance of TMyForm is a nullptr");
          return form;
-         }
+      }
 
       fw_Form const* Form(void) const {
-         if(form == nullptr) throw std::runtime_error("Critical error, member form in this instance of TMyForm is a nullptr");
+         if (form == nullptr) throw std::runtime_error("Critical error, member form in this instance of TMyForm is a nullptr");
          return form;
-         }
+      }
+   private:
 
       //------------------------------------------------------------------------------
       template <typename ty>
