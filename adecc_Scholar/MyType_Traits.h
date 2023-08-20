@@ -102,6 +102,20 @@ struct is_delphi_wide_string : std::false_type {};
 template <typename ty>
 struct is_delphi_string : std::false_type {};
 
+#else
+
+template <typename ty>
+struct is_delphi_narrow_string : std::false_type {} ;
+
+template <typename ty>
+struct is_delphi_wide_string : std::false_type {};
+
+template <typename ty>
+struct is_delphi_string : std::false_type {};
+
+template<typename ty>
+struct is_qt_string : std::false_type {};
+	
 #endif
 
 
