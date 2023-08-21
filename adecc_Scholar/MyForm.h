@@ -228,6 +228,8 @@ class TMyForm {
                break;
             case EMyMessageType::error:
                ret = QMessageBox::critical(Form(), strCaption, strMessage, QMessageBox::Ok);
+               //QMessageBox message(QMessageBox::Critical, strCaption, strMessage, QMessageBox::Ok, QApplication::desktop());
+               //ret = message.exec();  // ret ist hier Ganzzahl und muss umgesetzt werden
                break;
             case EMyMessageType::question:
                ret = QMessageBox::question(Form(), strCaption, strMessage, QMessageBox::Yes | QMessageBox::No |  QMessageBox::Cancel);
