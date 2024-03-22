@@ -89,9 +89,6 @@ public:
 
 };
 
-#define MY_POSITION() my_source_position(__func__, __FILE__, __LINE__) 
-
-
 
 /// Enumeration with values for the alignment of a field independent of the framework
 enum class EMyAlignmentType : int {

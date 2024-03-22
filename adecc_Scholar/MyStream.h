@@ -121,7 +121,7 @@ class ListStreamBufBase : public StreamBufBase<ty> {
       using int_type  = typename ty::streambuf::int_type;
       std::vector<tplList<ty>> captions;
    public:
-      ListStreamBufBase(std::vector<tplList<ty>> const& para) : StreamBufBase<ty>() { captions = para;  };
+      explicit ListStreamBufBase(std::vector<tplList<ty>> const& para) : StreamBufBase<ty>(), captions { para } {  };
       virtual ~ListStreamBufBase(void) { };
 
       virtual void Write(void)   = 0;
@@ -180,7 +180,7 @@ class MemoStreamBuf : public StreamBufBase<ty> {
 private:
    QTextEdit* value;
 public:
-   MemoStreamBuf(QTextEdit* para, bool boClean = true) : StreamBufBase<ty>() {
+   explicit MemoStreamBuf(QTextEdit* para, bool boClean = true) : StreamBufBase<ty>() {
       value = para;
 
       if (boClean);
@@ -189,7 +189,7 @@ public:
 
    virtual ~MemoStreamBuf(void) { value = nullptr; }
 
-   virtual void Write(void) {
+   virtual void Write(void) override {
       if (StreamBufBase<ty>::os.str().length() > 0) {
         value->moveCursor(QTextCursor::End);
         if constexpr (std::is_same<Wide, ty>::value)
@@ -242,7 +242,7 @@ class LabelStreamBuf : public StreamBufBase<ty> {
    private:
       QLabel* value;
    public:
-      LabelStreamBuf(QLabel* para, bool boClean = true) : StreamBufBase<ty>() {
+      explicit LabelStreamBuf(QLabel* para, bool boClean = true) : StreamBufBase<ty>() {
          value = para;
          if (boClean) value->clear();
          }
@@ -310,7 +310,7 @@ class ListBoxStreamBuf : public StreamBufBase<ty> {
 private:
    QListWidget* value;
 public:
-   ListBoxStreamBuf(QListWidget* para, bool boMultiSelect = true, bool boClean = true) : StreamBufBase<ty>() {
+   explicit ListBoxStreamBuf(QListWidget* para, bool boMultiSelect = true, bool boClean = true) : StreamBufBase<ty>() {
       value = para;
      // if (boMultiSelect) value->setSelectionMode(QAbstractItemView::ExtendedSelection);
      // else value->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -319,7 +319,7 @@ public:
 
    virtual ~ListBoxStreamBuf(void) { value = nullptr; }
 
-   virtual void Write(void) {
+   virtual void Write(void) override {
       if (StreamBufBase<ty>::os.str().length() > 0) {
          if constexpr (std::is_same<Wide, ty>::value)
             value->addItem(QString::fromStdWString(StreamBufBase<ty>::os.str()));
@@ -372,14 +372,14 @@ class ComboBoxStreamBuf : public StreamBufBase<ty> {
 private:
    QComboBox* value;
 public:
-   ComboBoxStreamBuf(QComboBox* para, bool boClean = true) : StreamBufBase<ty>() {
+   explicit ComboBoxStreamBuf(QComboBox* para, bool boClean = true) : StreamBufBase<ty>() {
       value = para;
       if (boClean)  value->clear();
       }
 
    virtual ~ComboBoxStreamBuf(void) { value = nullptr; }
 
-   virtual void Write(void) {
+   virtual void Write(void) override {
       if (StreamBufBase<ty>::os.str().length() > 0) {
          if constexpr (std::is_same<Wide, ty>::value)
             value->addItem(QString::fromStdString(StreamBufBase<ty>::os.str()));
@@ -566,9 +566,9 @@ public:
 
    virtual ~ListViewStreamBuf(void) { tw = nullptr; }
 
-   virtual void NewLine(void) { iColumn = 0; }
+   virtual void NewLine(void) override { iColumn = 0; }
 
-   virtual void Write(void) {
+   virtual void Write(void) override {
       if (iColumn == 0) {
          if (iRow == 0) {
             iRow = 1;
@@ -616,7 +616,7 @@ class TStreamWrapper {
         std::swap(old, ref.old);
         }
 
-     TStreamWrapper(typename ty_base::stream_type& ref) : str(ref) { old = nullptr; }
+     explicit TStreamWrapper(typename ty_base::stream_type& ref) : str(ref), old { nullptr } { }
      ~TStreamWrapper(void) {
         if(old != nullptr) {
            typename ty_base::streambuf* tmp = str.rdbuf(old);
