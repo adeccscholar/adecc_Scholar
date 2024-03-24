@@ -66,7 +66,7 @@ public:
    //source_position() = default;
    my_source_position(std::string const& pFunc, std::string const& pFile, size_t pLine) :
       strFunction(pFunc), strFile(pFile), iLine(pLine) { }
-   my_source_position(my_source_position const&) = delete;
+   my_source_position(my_source_position const&) = default;
 
    my_source_position(my_source_position&& rref) noexcept {
       std::swap(strFunction, rref.strFunction);
